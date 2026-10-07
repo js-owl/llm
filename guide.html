@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Свой LLM с нуля — порядок изучения</title>
+    <meta name="description" content="Порядок изучения языковой модели с нуля: от математики до приёмов, на которых работает Opus. Каждый пункт с простым примером.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4efe6;
+            --paper: #fffaf4;
+            --ink: #3a2a1a;
+            --soft: #5c4634;
+            --line: #e4d3c0;
+            --terra: #9a4632;
+            --terra-soft: #c46a52;
+            --amber: #e7c48a;
+            --amber-deep: #8a5a32;
+            --moss: #5f7d62;
+            --wash: #fbf3e8;
+            --shadow: 0 12px 32px rgba(90, 55, 30, 0.06);
+            --serif: "Fraunces", Georgia, "Times New Roman", serif;
+            --sans: "Source Sans 3", "Segoe UI", sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            background:
+                radial-gradient(ellipse at top, #f8e6d0 0%, transparent 42%),
+                var(--bg);
+            color: var(--ink);
+            font-family: var(--sans);
+            font-size: 1.0625rem;
+            line-height: 1.65;
+        }
+        ::selection { background: #f0d3b0; }
+        :focus-visible {
+            outline: 2px solid var(--terra);
+            outline-offset: 3px;
+        }
+        .skip {
+            position: absolute;
+            left: 1rem;
+            top: -4rem;
+            background: var(--paper);
+            color: var(--ink);
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+        }
+        .skip:focus { top: 1rem; }
+
+        header, main { width: min(72rem, calc(100% - 3rem)); margin: 0 auto; }
+        header { padding: 3.5rem 0 0.5rem; }
+        .eyebrow {
+            margin: 0 0 0.8rem;
+            color: var(--terra);
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            font-size: 0.92rem;
+        }
+        h1 {
+            margin: 0 0 0.8rem;
+            font-family: var(--serif);
+            font-weight: 650;
+            font-size: clamp(2.15rem, 5vw, 3.35rem);
+            line-height: 1.12;
+            letter-spacing: -0.02em;
+        }
+        .lede { margin: 0; color: var(--soft); font-size: 1.15rem; }
+
+        main { padding-bottom: 4.5rem; }
+        section { margin-top: 2.6rem; }
+        h2 {
+            margin: 0 0 0.45rem;
+            font-family: var(--serif);
+            font-weight: 650;
+            font-size: 1.85rem;
+            letter-spacing: -0.02em;
+        }
+        .intro { margin: 0 0 1rem; color: var(--soft); }
+
+        .toc {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin: 1.25rem 0 0;
+            padding: 0;
+            list-style: none;
+        }
+        .toc a {
+            display: inline-block;
+            text-decoration: none;
+            color: var(--ink);
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 0.28rem 0.72rem;
+            font-size: 0.95rem;
+        }
+        .toc a:hover { border-color: var(--terra-soft); color: var(--terra); }
+
+        .scale, .levels { display: grid; gap: 0.75rem; }
+        .card, .step, .levels li {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+        .card { padding: 1.05rem 1.15rem 1.1rem; }
+        .card h3, .levels h4 {
+            margin: 0 0 0.35rem;
+            font-family: var(--serif);
+            font-weight: 650;
+            font-size: 1.28rem;
+        }
+        .card p, .levels p { margin: 0; }
+        .card.here { box-shadow: inset 3px 0 0 var(--amber), var(--shadow); }
+        .card.home { box-shadow: inset 3px 0 0 var(--terra-soft), var(--shadow); }
+        .card.opus { box-shadow: inset 3px 0 0 var(--terra), var(--shadow); }
+        .tag {
+            display: inline-block;
+            margin-bottom: 0.35rem;
+            color: var(--amber-deep);
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .step {
+            display: grid;
+            grid-template-columns: 2.6rem 1fr;
+            gap: 0.35rem 0.85rem;
+            padding: 1.2rem 1.15rem 1.25rem;
+            margin: 0 0 0.85rem;
+            scroll-margin-top: 1rem;
+        }
+        .num {
+            margin: 0.15rem 0 0;
+            font-family: var(--serif);
+            font-size: 1.25rem;
+            color: var(--terra);
+        }
+        .step h3 {
+            margin: 0 0 0.45rem;
+            font-family: var(--serif);
+            font-weight: 650;
+            font-size: 1.38rem;
+            letter-spacing: -0.015em;
+            line-height: 1.25;
+        }
+        .step p { margin: 0.55rem 0 0; }
+        .step p:first-of-type { margin-top: 0; }
+
+        .example, .demo {
+            margin-top: 0.85rem;
+            background: var(--wash);
+            border: 1px dashed #e0cbb4;
+            border-radius: 12px;
+            padding: 0.85rem 0.95rem 0.95rem;
+        }
+        .demo { background: #fff; border-style: solid; }
+        .label {
+            color: var(--terra);
+            font-weight: 600;
+            font-size: 0.92rem;
+        }
+        .notebook { margin: 0.35rem 0 0; padding: 0; list-style: none; }
+        .notebook li {
+            padding: 0.22rem 0;
+            border-bottom: 1px solid #eadccb;
+            font-family: var(--serif);
+        }
+        .notebook li:last-child { border-bottom: 0; }
+        .chips { margin: 0.45rem 0 0; }
+        .chip {
+            display: inline-flex;
+            gap: 0.4rem;
+            align-items: baseline;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 0.18rem 0.65rem;
+            margin: 0.2rem 0.25rem 0 0;
+        }
+        .chip b { color: var(--terra); font-weight: 600; }
+        .vecs { margin: 0.4rem 0 0; padding-left: 1.1rem; }
+        .phone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            align-items: center;
+            width: fit-content;
+            max-width: 100%;
+            margin-top: 0.45rem;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 0.4rem 0.45rem 0.4rem 0.85rem;
+        }
+        .suggest {
+            background: #f6e3c4;
+            color: #6a3d22;
+            border-radius: 999px;
+            padding: 0.15rem 0.7rem;
+            font-weight: 600;
+        }
+        .pair, .compare {
+            display: grid;
+            gap: 0.7rem;
+            margin-top: 0.55rem;
+        }
+        .pair > div, .compare > div {
+            background: #fff;
+            border-radius: 10px;
+            padding: 0.7rem 0.8rem;
+            border: 1px solid var(--line);
+        }
+        .pair p, .compare p { margin: 0.25rem 0 0; }
+        .take { box-shadow: inset 3px 0 0 var(--moss); }
+        blockquote {
+            margin: 0.55rem 0 0;
+            padding: 0.15rem 0 0.15rem 0.85rem;
+            border-left: 3px solid var(--amber);
+        }
+        .big-note {
+            margin-top: 0.85rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--line);
+            color: var(--soft);
+        }
+        .fine { margin-top: 0.55rem; color: var(--soft); font-size: 0.95rem; }
+
+        .sentence {
+            margin: 0.35rem 0 0.7rem;
+            font-family: var(--serif);
+            font-size: 1.55rem;
+            line-height: 1.3;
+        }
+        .blank {
+            border-bottom: 2px solid var(--terra);
+            color: var(--terra);
+            padding: 0 0.25rem;
+        }
+        .choices { display: grid; gap: 0.55rem; }
+        .choices[hidden] { display: none !important; }
+        .choice, .bar-row {
+            display: grid;
+            grid-template-columns: 4.2rem 1fr 3rem;
+            gap: 0.6rem;
+            align-items: center;
+        }
+        .choice {
+            width: 100%;
+            padding: 0.7rem 0.75rem;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--paper);
+            color: inherit;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+        }
+        @media (hover: hover) {
+            .choice:hover { border-color: var(--terra-soft); }
+        }
+        .bar-name { font-weight: 600; }
+        .bar-pct { text-align: right; color: var(--soft); font-variant-numeric: tabular-nums; }
+        .track {
+            display: block;
+            height: 0.55rem;
+            background: #efe2d2;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .fill {
+            display: block;
+            height: 100%;
+            width: 0;
+            background: var(--terra-soft);
+            border-radius: inherit;
+            transition: width 0.45s ease;
+        }
+        .fill-ok { background: var(--moss); }
+        .demo-msg { margin: 0 0 0.75rem; }
+        .again {
+            margin-top: 0.85rem;
+            background: var(--paper);
+            color: var(--ink);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 0.4rem 0.85rem;
+            font: inherit;
+            cursor: pointer;
+        }
+        @media (hover: hover) {
+            .again:hover { border-color: var(--terra); }
+        }
+        .levels { list-style: none; margin: 0.85rem 0 0; padding: 0; }
+        .levels li { padding: 0.9rem 1rem; box-shadow: none; }
+
+        .step.heart { box-shadow: inset 3px 0 0 var(--terra), var(--shadow); }
+        .topic {
+            margin-top: 1.05rem;
+            padding-top: 0.85rem;
+            border-top: 1px solid var(--line);
+        }
+        .topic h4 {
+            margin: 0 0 0.35rem;
+            font-family: var(--serif);
+            font-size: 1.12rem;
+            font-weight: 650;
+        }
+        .formula {
+            margin: 0.75rem 0 0;
+            padding: 0.85rem 0.7rem;
+            text-align: center;
+            font-family: var(--serif);
+            font-size: clamp(1.02rem, 2.5vw, 1.35rem);
+            line-height: 1.45;
+            overflow-wrap: anywhere;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+        }
+        .formula .q { color: var(--terra); }
+        .formula .k { color: var(--amber-deep); }
+        .formula .v { color: var(--moss); }
+        .qkv { display: grid; gap: 0.45rem; margin-top: 0.7rem; }
+        .qkv p { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 0.6rem 0.75rem; }
+
+        footer {
+            width: min(72rem, calc(100% - 3rem));
+            margin: 0 auto;
+            padding: 0 0 2.5rem;
+            color: var(--soft);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 560px) {
+            .step { grid-template-columns: 1fr; gap: 0.15rem; }
+            .compare { grid-template-columns: 1fr; }
+            .choice, .bar-row { grid-template-columns: 3.4rem 1fr 2.7rem; }
+            header { padding-top: 2.2rem; }
+        }
+        @media (min-width: 720px) {
+            .compare { grid-template-columns: 1fr 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .fill { transition: none; }
+        }
+    </style>
+</head>
+<body>
+<a class="skip" href="#steps">К шагам</a>
+
+<header>
+    <p class="eyebrow">Простой гайд</p>
+    <h1>Своя языковая модель с нуля</h1>
+    <p class="lede">LLM — это программа, которая дописывает текст. Ниже тот порядок, в котором это изучают: от школьных чисел до приёмов, на которых держится Opus. В каждом пункте один маленький пример.</p>
+    <nav aria-label="Содержание">
+        <ul class="toc">
+            <li><a href="#step-0">00 Математика</a></li>
+            <li><a href="#step-1">01 Основы ML</a></li>
+            <li><a href="#step-2">02 Нейросети</a></li>
+            <li><a href="#step-3">03 Transformer</a></li>
+            <li><a href="#step-4">04 Обучение</a></li>
+            <li><a href="#step-5">05 Инференс</a></li>
+            <li><a href="#step-6">06 Alignment</a></li>
+            <li><a href="#step-7">07 Advanced</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <section id="steps" aria-labelledby="steps-title">
+        <h2 id="steps-title">Порядок изучения</h2>
+        <p class="intro">Идите сверху вниз. Восемь ступеней, внутри каждой короткие пункты. Сначала смысл, потом пример на нескольких словах.</p>
+
+        <article class="step" id="step-0">
+            <p class="num" aria-hidden="true">00</p>
+            <div>
+                <p class="tag">База</p>
+                <h3>Математика</h3>
+                <p>Внутри модели нет букв. Там списки чисел и правила, как эти списки складывать и поправлять. Хватает трёх тем.</p>
+
+                <div class="topic">
+                    <h4>Линейная алгебра</h4>
+                    <p>Вектор — это список чисел. Матрица — таблица чисел. Скалярное произведение измеряет, насколько два списка смотрят в одну сторону: числа перемножают попарно и складывают. В LLM почти вся работа — такие перемножения таблиц, только таблицы огромные.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <ul class="vecs">
+                            <li>кот = (2, 0)</li>
+                            <li>пёс = (1, 1)</li>
+                            <li>стол = (0, 8)</li>
+                        </ul>
+                        <p>Кот и пёс: 2×1 + 0×1 = 2. Кот и стол: 2×0 + 0×8 = 0. Первая пара ближе. У настоящей модели в списке тысячи чисел, а не два.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Производные</h4>
+                    <p>Производная отвечает на короткий вопрос: если чуть повернуть одну ручку, результат станет лучше или хуже? Градиент — набор таких стрелок сразу для всех ручек. Цепное правило нужно, когда ручка влияет на ответ через несколько слоёв: поправка идёт по цепочке от конца к началу.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Ручка «шанс слова раму» стоит на 50%. Поворот к 70% уменьшает ошибку, поворот к 20% увеличивает. Стрелка говорит: крути к 70%. Если эта ручка спрятана за тремя слоями, цепное правило протаскивает ту же стрелку через все три.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Вероятности</h4>
+                    <p>Модель выдаёт шансы сразу на все слова. Softmax превращает сырые оценки в доли, которые в сумме дают 100%. Перекрёстная энтропия — штраф: она сравнивает эти доли с правильным словом из тетради. Чем дальше доли от тетради, тем штраф больше. На этом штрафе языковые модели и учатся.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Сырые оценки для «мама мыла ___»: пол = 1, раму = 3. После softmax «раму» забирает большую долю, «пол» — маленькую. В тетради правильное слово «раму». Если модель и так отдаёт ему почти весь шанс, штраф крошечный. Если почти весь шанс у «пол», штраф большой.</p>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="step" id="step-1">
+            <p class="num" aria-hidden="true">01</p>
+            <div>
+                <p class="tag">Механика</p>
+                <h3>Основы ML</h3>
+                <p>Математика из прошлого шага здесь становится учёбой: измерили ошибку, чуть повернули ручки, измерили снова.</p>
+
+                <div class="topic">
+                    <h4>Градиентный спуск</h4>
+                    <p>Штраф — это холм. Градиент показывает, куда склон идёт вниз. Спуск — маленький шаг в ту сторону. SGD делает шаг по одному примеру. Mini-batch усредняет склон по пачке примеров, чтобы одна странная фраза не утаскивала все ручки. Adam — тот же спуск, только длина шага сама меняется: на крутом месте короче. Почти все LLM учатся с Adam.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>В пачке восемь обычных фраз про погоду и одна странная: «зонтик ел суп». Шаг по одной странной фразе увёл бы модель в сторону. Шаг по средней ошибке пачки почти не замечает эту фразу.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Backpropagation</h4>
+                    <p>Штраф известен в самом конце, на выбранном слове. Backpropagation разносит его назад по слоям через цепное правило. Каждый слой узнаёт свою долю поправки.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Фраза «мама мыла», модель сказала «пол», в тетради «раму». Слой, который перепутал смысл «мыла», получает заметный поворот. Слой, который только держал форму букв, получает слабый. Так ошибка протекает от ответа к началу сети.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Loss</h4>
+                    <p>Loss — одно число, сам штраф. Это разница между тем, какие шансы предсказала модель, и тем, какое слово стояло в тексте. Учёба сводится к тому, чтобы делать это число меньше.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Тетрадь: «раму». Модель уверена в «раму» на 90% — loss маленький. Уверена в «пол» на 90% — loss большой. Следующий шаг спуска крутит ручки так, чтобы большое число стало меньше.</p>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="step" id="step-2">
+            <p class="num" aria-hidden="true">02</p>
+            <div>
+                <p class="tag">Предыстория</p>
+                <h3>Нейросети и NLP</h3>
+                <p>До трансформера текст уже умели превращать в числа и читать по цепочке. Эти три идеи до сих пор лежат в основе LLM.</p>
+
+                <div class="topic">
+                    <h4>Embeddings</h4>
+                    <p>Слово становится точкой на карте смыслов. word2vec и GloVe — ранние способы построить такую карту: слова, которые встречаются в похожих местах, оказываются рядом.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>На такой карте шаг от «мужчина» к «король» похож на шаг от «женщина» к «королева». Модель не заучила титулы. Она видела, что эти слова живут в похожих предложениях. В LLM своя карта чисел учится уже внутри сети.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>RNN / LSTM</h4>
+                    <p>Раньше фразу читали строго слева направо, по одному слову, и тащили память в следующее слово. LSTM — сеть с более крепкой памятью. Длинную фразу она всё равно начинает забывать, и прочитать все слова разом не может: каждое ждёт предыдущее.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>«Кот, который жил у бабушки в деревне у реки, ___». К дырке сеть должна помнить, что речь о коте. У короткой памяти к этому месту «кот» уже потускнел, и в дырку легче попадает что-то про реку.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Seq2seq + Attention</h4>
+                    <p>Seq2seq — две сети: одна читает фразу, вторая пишет ответ, например перевод. Attention в версии Bahdanau добавляет взгляд назад: на каждом новом слове можно посмотреть на нужное место исходной фразы. Это прямой предок self-attention.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Фраза «чёрный кот». Когда переводчик пишет «black», взгляд держится на «чёрный». Когда пишет «cat», взгляд переезжает на «кот».</p>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="step heart" id="step-3">
+            <p class="num" aria-hidden="true">03</p>
+            <div>
+                <p class="tag">Сердце</p>
+                <h3>Transformer</h3>
+                <p>Opus, GPT и почти все современные LLM собраны как трансформер. Ниже семь деталей. Дальше по гайду они уже считаются знакомыми.</p>
+
+                <div class="topic">
+                    <h4>Tokenization</h4>
+                    <p>Модель видит токены: частые кусочки текста и их номера. BPE и SentencePiece — способы собрать такой словарь автоматически. Целое слово, кусок слова или знак препинания могут стать одним токеном.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Фраза «кот сидит» в учебной нарезке:</p>
+                        <div class="chips">
+                            <span class="chip">кот <b>4</b></span>
+                            <span class="chip">сид <b>17</b></span>
+                            <span class="chip">ит <b>2</b></span>
+                        </div>
+                        <p>Дальше модель видит ряд 4, 17, 2. Номера здесь придуманы для наглядности.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Positional Encoding</h4>
+                    <p>Одинаковые токены в начале и в конце фразы нужно различать. RoPE вписывает место в строке прямо в числа токена, поворотом. Смысл остаётся, позиция становится видна.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Без места в строке «кот сидит» и «сидит кот» выглядят одной кучей номеров. С RoPE слово «дождь» первым в фразе и шестым получает разный поворот, и модель понимает, где оно стояло.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Self-Attention</h4>
+                    <p>Каждый токен смотрит на остальные в этой же фразе. Для этого у него три списка чисел.</p>
+                    <div class="qkv">
+                        <p><strong class="q">Q — вопрос.</strong> Что я сейчас ищу?</p>
+                        <p><strong class="k">K — ключ.</strong> Что я могу предложить?</p>
+                        <p><strong class="v">V — значение.</strong> Какую информацию отдать, если вопрос и ключ совпали.</p>
+                    </div>
+                    <p class="formula" aria-label="Внимание от Q, K и V равно softmax от Q K транспонированное, делённое на корень из d k, и умноженное на V">
+                        <span class="q">Attention</span>(<span class="q">Q</span>, <span class="k">K</span>, <span class="v">V</span>) = softmax(<span class="q">Q</span><span class="k">K</span><sup>T</sup> / √d<sub>k</sub>) <span class="v">V</span>
+                    </p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Фраза «зонтик взяли, потому что начался дождь». Токен «зонтик» задаёт вопрос всем. Сильнее всех совпадает ключ у «дождь», поэтому к «зонтику» перетекает значение именно от «дождя».</p>
+                        <p>Деление на √d<sub>k</sub> держит совпадения умеренными. Без него числа раздуваются, softmax залипает на одном токене, и учёба замирает.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Multi-Head</h4>
+                    <p>Таких взглядов несколько сразу, их называют головами. Каждая голова может поймать свой тип связи. Потом головы складывают обратно в один список чисел.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Во фразе «мама мыла раму» одна голова связывает «мыла» с «раму»: что именно мыли. Другая связывает «мама» с «мыла»: кто действовал. Настоящие головы сами находят, на что смотреть. Подписи «кто» и «что» здесь только для картинки.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>LayerNorm + Residual</h4>
+                    <p>Блоков трансформера в большой модели больше ста. Residual прибавляет результат слоя к тому, что в слой уже входило: старый смысл идёт дальше по обходной дорожке. LayerNorm держит числа в спокойном размере, чтобы глубокая стопка слоёв не раздувала их.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Новый слой на секунду запутался в слове «дождь». Благодаря обходной дорожке предыдущая версия фразы всё равно доезжает до следующего слоя, и одна неудача не стирает уже понятое.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>FFN</h4>
+                    <p>После внимания каждый токен отдельно проходит через две таблицы с изгибом посередине. Изгиб — SwiGLU или GELU: число может включиться плавно, а не только «да» или «нет». Внимание смешивает токены между собой. FFN думает над каждым токеном в одиночку.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Внимание уже связало «зонтик» и «дождь». FFN на самом токене «дождь» дорисовывает спутников этого смысла: мокро, серо, холодно.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Causal Masking</h4>
+                    <p>При учёбе токен видит только себя и то, что левее. Всё правее закрыто маской. Иначе модель подглядела бы ответ в будущем и учиться было бы незачем. Так устроены GPT-подобные модели, и Opus тоже.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Фраза «мама мыла раму». Когда очередь токена «мыла», видны только «мама» и «мыла». Слово «раму» закрыто. Его предстоит угадать.</p>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="step" id="step-4">
+            <p class="num" aria-hidden="true">04</p>
+            <div>
+                <p class="tag">Pretraining</p>
+                <h3>Обучение LLM</h3>
+                <p>Трансформер ещё пустой, пока его не прогнали по огромному тексту. Здесь он учится языку: продолжать уже написанное.</p>
+
+                <div class="topic">
+                    <h4>Causal Language Modeling</h4>
+                    <p>Задача одна и та же на каждом месте: по всем предыдущим токенам угадать следующий. Ошибку измеряют loss из шага 01, ручки крутят спуском.</p>
+                    <div class="demo" id="demo">
+                        <div class="label">Пример. Нажмите ответ ученика</div>
+                        <p class="sentence">мама мыла <span class="blank">___</span></p>
+                        <p>В тетради записано «раму». Сейчас ученик склоняется так: «пол» 30%, «раму» 70%.</p>
+                        <div class="choices" id="choices">
+                            <div class="bar-row">
+                                <span class="bar-name">пол</span>
+                                <span class="track" aria-hidden="true"><span class="fill" style="width:30%"></span></span>
+                                <span class="bar-pct">30%</span>
+                            </div>
+                            <div class="bar-row">
+                                <span class="bar-name">раму</span>
+                                <span class="track" aria-hidden="true"><span class="fill" style="width:70%"></span></span>
+                                <span class="bar-pct">70%</span>
+                            </div>
+                        </div>
+                        <div id="result" class="result" aria-live="polite"></div>
+                        <noscript>
+                            <p>Без скриптов кнопки не нажимаются. Если ученик сказал «раму», шанс сдвигается с 70% до 74%. Если сказал «пол», «раму» становится 78%, а «пол» — 22%.</p>
+                        </noscript>
+                        <p class="fine">Цифры учебные: они показывают направление поправки. Настоящий сдвиг считает формула loss и градиент.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Pretraining</h4>
+                    <p>Тот же угадайте-следующий-токен прогоняют по очень большому запасу текста: интернет, книги, код. Перед этим выкидывают мусор и дубли, чтобы модель не зубрила одну страницу тысячу раз.</p>
+                    <div class="example">
+                        <div class="label">Пример. Весь «интернет» тетрадки</div>
+                        <ol class="notebook">
+                            <li>Утром светит солнце.</li>
+                            <li>Днём стало тепло.</li>
+                            <li>Вечером пошёл дождь.</li>
+                            <li>Ночью было тихо.</li>
+                            <li>Завтра обещают облака.</li>
+                            <li>Ветер стих к обеду.</li>
+                            <li>На улице сыро после ливня.</li>
+                            <li>Зонт пригодился.</li>
+                        </ol>
+                        <p>На этих восьми фразах модель выучит только погоду из блокнота. У большой модели таких кусочков триллионы.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Scaling Laws</h4>
+                    <p>Законы Каплана и Chinchilla описывают, как качество растёт вместе с двумя вещами: числом ручек в модели и объёмом текста. Маленькая модель на горе текста упирается в потолок. Огромная модель на тонкой пачке текста тоже не раскрывается: текста на все её ручки не хватает.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Блокнот из восьми фраз можно крутить хоть тысячу раз. Opus из него не получится: и ручек мало, и текста мало. Chinchilla как раз про этот баланс. Новые ручки имеют смысл, когда для них есть новый текст.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Context Window</h4>
+                    <p>Окно контекста — сколько токенов модель держит перед глазами за один раз. У Opus это 200 тысяч и больше: в один разговор помещается целая книга.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Тетрадка на фразе «мама мыла» видит два слова. Модель с длинным окном может получить в чат весь рассказ и угадывать следующее слово, помня начало.</p>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="step" id="step-5">
+            <p class="num" aria-hidden="true">05</p>
+            <div>
+                <p class="tag">Генерация</p>
+                <h3>Инференс</h3>
+                <p>Учёба закончилась. Теперь модель отвечает. Инференс — это уже готовые ручки, которыми пользуются, а не крутят.</p>
+
+                <div class="topic">
+                    <h4>Autoregressive</h4>
+                    <p>Ответ собирается слева направо, по одному токену. Новый токен дописывают к фразе и снова просят следующий. Так по кругу, пока ответ не сложится.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Вопрос: как сварить яйцо?</p>
+                        <p>«Опусти» → «яйцо» → «в» → «кипяток» → «на» → «8» → «минут.»</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>KV-Cache</h4>
+                    <p>Key и Value уже увиденных токенов можно не считать заново. Их кладут в память и достают на следующем шаге. Без этого каждый новый токен заставлял бы перечитывать всю фразу с нуля. Для длинного ответа это главная экономия времени.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Уже сказано «Опусти яйцо в». Ключи и значения этих трёх токенов лежат в ящике. Для слова «кипяток» считается только оно само, а на соседей смотрят по записи из ящика.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Temperature</h4>
+                    <p>Температура решает, насколько можно отойти от самого вероятного токена. Ноль — всегда берётся лидер, это жадный выбор. Единица и выше оставляют место соседним вариантам, текст становится разнообразнее.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Для рецепта яйца удобна температура около нуля: каждый раз «8 минут», а не внезапная сказка. Для истории на ночь ручку поднимают, и второе по шансу слово иногда выигрывает у первого.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Top-k / Top-p</h4>
+                    <p>Даже при высокой температуре совсем редкие токены отсекают. Top-k оставляет только k самых вероятных. Top-p набирает токены с верхушки, пока их суммарный шанс не дойдёт до порога, и выбрасывает хвост.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Для «мама мыла» в игре остались «раму» и «пол». Слово «космос» с крошечным шансом в этот список не входит ни при top-k = 2, ни при top-p, который забирает основную массу вероятности и отрезает хвост.</p>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="step" id="step-6">
+            <p class="num" aria-hidden="true">06</p>
+            <div>
+                <p class="tag">Выравнивание</p>
+                <h3>Alignment</h3>
+                <p>После предобучения модель умеет продолжать текст. Выравнивание учит её быть помощником: отвечать на вопрос и выбирать полезный ответ.</p>
+
+                <div class="topic">
+                    <h4>SFT</h4>
+                    <p>Supervised Fine-Tuning — дообучение на готовых парах. Человек написал вопрос и хороший ответ. Модель учат повторять именно такой формат.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <div class="pair">
+                            <div>
+                                <div class="label">До</div>
+                                <p>«Столица Франции?» — и дальше модель пишет ещё абзац, потому что так выглядят тексты из интернета.</p>
+                            </div>
+                            <div class="take">
+                                <div class="label">Пара для SFT</div>
+                                <p>Вопрос: Столица Франции?<br>Ответ: Париж.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>RLHF</h4>
+                    <p>Люди сравнивают два ответа и говорят, какой лучше. Отдельная маленькая модель, reward model, учится ставить такую же оценку. Затем основную модель поощряют за ответы с высокой оценкой. Способ крутить ручки ради награды здесь называется PPO.</p>
+                    <div class="example">
+                        <div class="label">Пример. Как сварить яйцо?</div>
+                        <div class="pair">
+                            <div>
+                                <div class="label">Оценка низкая</div>
+                                <p>Положи сырое яйцо в карман и подожди до завтра.</p>
+                            </div>
+                            <div class="take">
+                                <div class="label">Оценка высокая</div>
+                                <p>Опусти яйцо в кипящую воду, держи около 8 минут, потом охлади.</p>
+                            </div>
+                        </div>
+                        <p>Человек выбирает второй ответ. Reward model запоминает этот вкус. PPO сдвигает большую модель в сторону ответов с высокой оценкой.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>DPO</h4>
+                    <p>Тот же выбор «этот ответ лучше того», только без отдельного судьи и без PPO. Пару предпочтений сразу кладут в обучение, и модель сдвигается к ответу, который люди отметили.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>В тетради одна строка: на вопрос про яйцо ответ про 8 минут лучше, чем ответ про карман. DPO крутит ручки прямо по этой строке.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Constitutional AI</h4>
+                    <p>Так учат модели Anthropic, в том числе Opus. Модели дают короткий список правил, конституцию. Она читает свой черновик, проверяет его по правилам и переписывает, если правило нарушено. Люди не могут вручную прочитать каждый ответ в мире, поэтому часть проверки модель делает сама.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Правило: «отвечай полезно и не советуй опасную бытовую ерунду».</p>
+                        <p>Черновик: «положи сырое яйцо в карман на сутки». Модель сама помечает черновик и меняет его на варку около 8 минут.</p>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="step" id="step-7">
+            <p class="num" aria-hidden="true">07</p>
+            <div>
+                <p class="tag">Production</p>
+                <h3>Advanced</h3>
+                <p>Эти приёмы нужны, когда модель уже большая и её надо учить и запускать на многих видеокартах. Идея сети от них не меняется.</p>
+
+                <div class="topic">
+                    <h4>MoE</h4>
+                    <p>Mixture of Experts — вместо одной сплошной сети много специалистов. На каждый токен просыпается только часть из них. Остальные в этом шаге не считают.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Токен «кипяток» будит специалиста по бытовым текстам. Токен из программного кода будит другого. Спящие специалисты не тратят счёт на это слово.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Quantization</h4>
+                    <p>Веса хранят грубее, коротким числом. INT8, FP8 и AWQ — разные способы такого округления. Файл худеет и влезает в меньшую видеопамять. Качество обычно проседает немного.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Число 0,837162 записывают как 0,84. Одно округление незаметно. Когда так сжимают все ручки, модель начинает помещаться на обычную видеокарту.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Distributed Training</h4>
+                    <p>Одна видеокарта большую модель не вмещает. Её делят на тысячи GPU. Tensor parallelism режет таблицы внутри слоя. Pipeline parallelism раздаёт слои по очереди, как главы одной книги. Data parallelism гоняет одну и ту же модель на разных пачках текста.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Три человека и одна книга. Pipeline: первый читает начало, второй середину, третий конец. Tensor: все трое читают одну страницу, но каждый свои абзацы. Data: у каждого свой экземпляр книги и своя пачка страниц, потом они усредняют, чему научились.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>FlashAttention / vLLM</h4>
+                    <p>FlashAttention считает внимание быстрее и бережнее к памяти видеокарты. vLLM обслуживает много запросов сразу и повторно использует уже посчитанные куски, в том числе KV-cache.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Десять человек начинают чат с одной и той же длинной инструкцией. Без общей памяти эта инструкция считается десять раз. vLLM хранит её общий кусок один раз и считает дальше только то, чем диалоги разошлись.</p>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </section>
+</main>
+
+<footer>
+    <p>Восемь ступеней выше — порядок изучения от математики до запуска большой модели. Страница объясняет путь и сама модель не обучает.</p>
+</footer>
+
+<script>
+(function () {
+    var choices = document.getElementById("choices");
+    var result = document.getElementById("result");
+    if (!choices || !result) return;
+
+    var start = [
+        { word: "пол", p: 30 },
+        { word: "раму", p: 70 }
+    ];
+    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function makeBars(list, paintAnswer) {
+        var wrap = document.createElement("div");
+        wrap.className = "bars";
+        list.forEach(function (item) {
+            var row = document.createElement("div");
+            row.className = "bar-row";
+
+            var name = document.createElement("span");
+            name.className = "bar-name";
+            name.textContent = item.word;
+
+            var track = document.createElement("span");
+            track.className = "track";
+            track.setAttribute("aria-hidden", "true");
+
+            var fill = document.createElement("span");
+            fill.className = "fill" + (paintAnswer && item.word === "раму" ? " fill-ok" : "");
+            var width = item.p + "%";
+            if (reduceMotion) fill.style.width = width;
+
+            var pct = document.createElement("span");
+            pct.className = "bar-pct";
+            pct.textContent = item.p + "%";
+
+            track.appendChild(fill);
+            row.appendChild(name);
+            row.appendChild(track);
+            row.appendChild(pct);
+            wrap.appendChild(row);
+
+            if (!reduceMotion) {
+                requestAnimationFrame(function () {
+                    fill.style.width = width;
+                });
+            }
+        });
+        return wrap;
+    }
+
+    function renderChoices() {
+        choices.hidden = false;
+        choices.textContent = "";
+        start.forEach(function (item) {
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "choice";
+            btn.addEventListener("click", function () { grade(item.word); });
+
+            var name = document.createElement("span");
+            name.className = "bar-name";
+            name.textContent = item.word;
+
+            var track = document.createElement("span");
+            track.className = "track";
+            track.setAttribute("aria-hidden", "true");
+
+            var fill = document.createElement("span");
+            fill.className = "fill";
+            fill.style.width = item.p + "%";
+
+            var pct = document.createElement("span");
+            pct.className = "bar-pct";
+            pct.textContent = item.p + "%";
+
+            track.appendChild(fill);
+            btn.appendChild(name);
+            btn.appendChild(track);
+            btn.appendChild(pct);
+            choices.appendChild(btn);
+        });
+    }
+
+    function grade(word) {
+        var hit = word === "раму";
+        var after = hit
+            ? [{ word: "пол", p: 26 }, { word: "раму", p: 74 }]
+            : [{ word: "пол", p: 22 }, { word: "раму", p: 78 }];
+
+        choices.hidden = true;
+        result.textContent = "";
+
+        var msg = document.createElement("p");
+        msg.className = "demo-msg";
+        msg.textContent = hit
+            ? "Попадание. Ученик сказал «раму». Ошибка маленькая, красная ручка едва двигает числа: 70% становится 74%."
+            : "Промах. Ученик сказал «пол», а в тетради «раму». Сдвиг заметнее: «раму» с 70% становится 78%, «пол» с 30% становится 22%.";
+
+        var compare = document.createElement("div");
+        compare.className = "compare";
+
+        function column(title, list, paint) {
+            var box = document.createElement("div");
+            var label = document.createElement("div");
+            label.className = "label";
+            label.textContent = title;
+            box.appendChild(label);
+            box.appendChild(makeBars(list, paint));
+            return box;
+        }
+
+        compare.appendChild(column("Было", start, false));
+        compare.appendChild(column("Стало", after, true));
+
+        var again = document.createElement("button");
+        again.type = "button";
+        again.className = "again";
+        again.textContent = "Сбросить пример";
+        again.addEventListener("click", function () {
+            result.textContent = "";
+            renderChoices();
+        });
+
+        result.appendChild(msg);
+        result.appendChild(compare);
+        result.appendChild(again);
+    }
+
+    renderChoices();
+})();
+</script>
+</body>
+</html>
