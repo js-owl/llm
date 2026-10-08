@@ -435,6 +435,13 @@
             color: var(--soft);
             font-size: 0.95rem;
         }
+        .plots {
+            display: grid;
+            gap: 0.7rem;
+            margin-top: 0.85rem;
+        }
+        .plots .chart { margin: 0; }
+        .plots .chart svg { min-width: 0; }
         .qkv { display: grid; gap: 0.45rem; margin-top: 0.7rem; }
         .qkv p { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 0.6rem 0.75rem; }
 
@@ -453,7 +460,7 @@
             header { padding-top: 2.2rem; }
         }
         @media (min-width: 720px) {
-            .compare { grid-template-columns: 1fr 1fr; }
+            .compare, .plots { grid-template-columns: 1fr 1fr; }
         }
         @media (prefers-reduced-motion: reduce) {
             html { scroll-behavior: auto; }
@@ -846,6 +853,136 @@
                                     <tr><td>9</td><td class="txt">Ноутбук</td><td>(6.0, 8.0)</td><td>(6.0, 8.0)</td><td>[0, 0]</td><td class="txt">Нет изменений</td></tr>
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="plots">
+                            <figure class="chart">
+                                <svg viewBox="0 0 300 292" role="img" aria-labelledby="emb-before-title emb-before-desc" font-family="Source Sans 3, Segoe UI, sans-serif">
+                                    <title id="emb-before-title">Карта слов до шага</title>
+                                    <desc id="emb-before-desc">Десять слов на плоскости от 0 до 10. Кот в точке 2, 8. Собака в точке 8, 2. Остальные слова на своих местах.</desc>
+                                    <g stroke="#eadccb" stroke-width="1">
+                                        <line x1="40" y1="64" x2="280" y2="64"/>
+                                        <line x1="40" y1="112" x2="280" y2="112"/>
+                                        <line x1="40" y1="160" x2="280" y2="160"/>
+                                        <line x1="40" y1="208" x2="280" y2="208"/>
+                                        <line x1="88" y1="16" x2="88" y2="256"/>
+                                        <line x1="136" y1="16" x2="136" y2="256"/>
+                                        <line x1="184" y1="16" x2="184" y2="256"/>
+                                        <line x1="232" y1="16" x2="232" y2="256"/>
+                                    </g>
+                                    <g stroke="#c9b39e" stroke-width="1.25">
+                                        <line x1="40" y1="16" x2="40" y2="256"/>
+                                        <line x1="40" y1="256" x2="280" y2="256"/>
+                                    </g>
+                                    <g fill="#5c4634" font-size="12" text-anchor="middle">
+                                        <text x="40" y="274">0</text>
+                                        <text x="160" y="274">5</text>
+                                        <text x="280" y="274">10</text>
+                                        <text x="160" y="290">X</text>
+                                    </g>
+                                    <g fill="#5c4634" font-size="12" text-anchor="end">
+                                        <text x="34" y="260">0</text>
+                                        <text x="34" y="140">5</text>
+                                        <text x="34" y="20">10</text>
+                                    </g>
+                                    <text x="46" y="14" fill="#5c4634" font-size="12">Y</text>
+                                    <g fill="#3a2a1a">
+                                        <circle cx="64" cy="184" r="4.5"/>
+                                        <circle cx="112" cy="88" r="4.5"/>
+                                        <circle cx="256" cy="40" r="4.5"/>
+                                        <circle cx="208" cy="160" r="4.5"/>
+                                        <circle cx="88" cy="232" r="4.5"/>
+                                        <circle cx="256" cy="232" r="4.5"/>
+                                        <circle cx="136" cy="160" r="4.5"/>
+                                        <circle cx="184" cy="64" r="4.5"/>
+                                    </g>
+                                    <g fill="#9a4632">
+                                        <circle cx="88" cy="64" r="5.5"/>
+                                        <circle cx="232" cy="208" r="5.5"/>
+                                    </g>
+                                    <g fill="#3a2a1a" font-size="12">
+                                        <text x="72" y="180">Волк</text>
+                                        <text x="120" y="92">Груша</text>
+                                        <text x="250" y="56" text-anchor="middle">Яблоко</text>
+                                        <text x="208" y="148" text-anchor="middle">Банан</text>
+                                        <text x="88" y="224" text-anchor="middle">Машина</text>
+                                        <text x="248" y="226" text-anchor="end">Самолет</text>
+                                        <text x="136" y="148" text-anchor="middle">Телефон</text>
+                                        <text x="184" y="54" text-anchor="middle">Ноутбук</text>
+                                    </g>
+                                    <g fill="#9a4632" font-size="12" font-weight="600">
+                                        <text x="88" y="54" text-anchor="middle">Кот</text>
+                                        <text x="232" y="198" text-anchor="middle">Собака</text>
+                                    </g>
+                                </svg>
+                                <figcaption>До. Кот (2.0, 8.0) и Собака (8.0, 2.0) далеко друг от друга.</figcaption>
+                            </figure>
+                            <figure class="chart">
+                                <svg viewBox="0 0 300 292" role="img" aria-labelledby="emb-after-title emb-after-desc" font-family="Source Sans 3, Segoe UI, sans-serif">
+                                    <title id="emb-after-title">Карта слов после одного шага</title>
+                                    <desc id="emb-after-desc">Те же оси. Кот сдвинулся в 2.6, 7.4. Собака сдвинулась в 7.4, 2.6. Остальные слова не сдвинулись. Бледный кружок показывает место до шага.</desc>
+                                    <g stroke="#eadccb" stroke-width="1">
+                                        <line x1="40" y1="64" x2="280" y2="64"/>
+                                        <line x1="40" y1="112" x2="280" y2="112"/>
+                                        <line x1="40" y1="160" x2="280" y2="160"/>
+                                        <line x1="40" y1="208" x2="280" y2="208"/>
+                                        <line x1="88" y1="16" x2="88" y2="256"/>
+                                        <line x1="136" y1="16" x2="136" y2="256"/>
+                                        <line x1="184" y1="16" x2="184" y2="256"/>
+                                        <line x1="232" y1="16" x2="232" y2="256"/>
+                                    </g>
+                                    <g stroke="#c9b39e" stroke-width="1.25">
+                                        <line x1="40" y1="16" x2="40" y2="256"/>
+                                        <line x1="40" y1="256" x2="280" y2="256"/>
+                                    </g>
+                                    <g fill="#5c4634" font-size="12" text-anchor="middle">
+                                        <text x="40" y="274">0</text>
+                                        <text x="160" y="274">5</text>
+                                        <text x="280" y="274">10</text>
+                                        <text x="160" y="290">X</text>
+                                    </g>
+                                    <g fill="#5c4634" font-size="12" text-anchor="end">
+                                        <text x="34" y="260">0</text>
+                                        <text x="34" y="140">5</text>
+                                        <text x="34" y="20">10</text>
+                                    </g>
+                                    <text x="46" y="14" fill="#5c4634" font-size="12">Y</text>
+                                    <g fill="none" stroke="#c46a52" stroke-width="1.5">
+                                        <line x1="88" y1="64" x2="102.4" y2="78.4"/>
+                                        <line x1="232" y1="208" x2="217.6" y2="193.6"/>
+                                        <circle cx="88" cy="64" r="5"/>
+                                        <circle cx="232" cy="208" r="5"/>
+                                    </g>
+                                    <g fill="#3a2a1a">
+                                        <circle cx="64" cy="184" r="4.5"/>
+                                        <circle cx="112" cy="88" r="4.5"/>
+                                        <circle cx="256" cy="40" r="4.5"/>
+                                        <circle cx="208" cy="160" r="4.5"/>
+                                        <circle cx="88" cy="232" r="4.5"/>
+                                        <circle cx="256" cy="232" r="4.5"/>
+                                        <circle cx="136" cy="160" r="4.5"/>
+                                        <circle cx="184" cy="64" r="4.5"/>
+                                    </g>
+                                    <g fill="#9a4632">
+                                        <circle cx="102.4" cy="78.4" r="5.5"/>
+                                        <circle cx="217.6" cy="193.6" r="5.5"/>
+                                    </g>
+                                    <g fill="#3a2a1a" font-size="12">
+                                        <text x="72" y="180">Волк</text>
+                                        <text x="120" y="92">Груша</text>
+                                        <text x="250" y="56" text-anchor="middle">Яблоко</text>
+                                        <text x="208" y="148" text-anchor="middle">Банан</text>
+                                        <text x="88" y="224" text-anchor="middle">Машина</text>
+                                        <text x="248" y="226" text-anchor="end">Самолет</text>
+                                        <text x="136" y="148" text-anchor="middle">Телефон</text>
+                                        <text x="184" y="54" text-anchor="middle">Ноутбук</text>
+                                    </g>
+                                    <g fill="#9a4632" font-size="12" font-weight="600">
+                                        <text x="80" y="56" text-anchor="end">Кот</text>
+                                        <text x="200" y="186" text-anchor="end">Собака</text>
+                                    </g>
+                                </svg>
+                                <figcaption>После. Кот (2.6, 7.4) и Собака (7.4, 2.6) шагнули навстречу. Пустой кружок — место до шага.</figcaption>
+                            </figure>
                         </div>
                     </div>
                 </div>
