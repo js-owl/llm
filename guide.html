@@ -175,6 +175,44 @@
             font-family: var(--serif);
         }
         .notebook li:last-child { border-bottom: 0; }
+        .sheet {
+            margin: 0.75rem 0 0.15rem;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+        .sheet table {
+            width: 100%;
+            border-collapse: collapse;
+            font-variant-numeric: tabular-nums;
+            font-size: 0.95rem;
+        }
+        .sheet caption {
+            caption-side: bottom;
+            padding: 0.45rem 0.65rem 0.6rem;
+            color: var(--soft);
+            font-size: 0.92rem;
+            text-align: left;
+        }
+        .sheet th, .sheet td {
+            padding: 0.28rem 0.6rem;
+            border-bottom: 1px solid #eadccb;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .sheet th {
+            color: var(--soft);
+            font-size: 0.84rem;
+            font-weight: 600;
+        }
+        .sheet td:first-child, .sheet th:first-child { text-align: left; }
+        .sheet tr.known td { background: #fff6ea; }
+        .sheet tfoot td {
+            border-bottom: 0;
+            border-top: 1px solid var(--line);
+            font-weight: 600;
+        }
         .chips { margin: 0.45rem 0 0; }
         .chip {
             display: inline-flex;
@@ -309,11 +347,43 @@
             border-top: 1px solid var(--line);
         }
         .topic h4 {
-            margin: 0 0 0.35rem;
+            margin: 0;
             font-family: var(--serif);
             font-size: 1.12rem;
             font-weight: 650;
         }
+        .acc-toggle {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin: 0;
+            padding: 0.15rem 0;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+        }
+        .acc-toggle::after {
+            content: "";
+            flex: none;
+            width: 0.45rem;
+            height: 0.45rem;
+            border-right: 2px solid var(--terra);
+            border-bottom: 2px solid var(--terra);
+            transform: translateY(-0.12rem) rotate(45deg);
+            transition: transform 0.15s ease;
+        }
+        .acc-toggle[aria-expanded="true"]::after {
+            transform: translateY(0.12rem) rotate(225deg);
+        }
+        @media (hover: hover) {
+            .acc-toggle:hover { color: var(--terra); }
+        }
+        .acc-body { padding-top: 0.45rem; }
         .formula {
             margin: 0.75rem 0 0;
             padding: 0.85rem 0.7rem;
@@ -370,7 +440,7 @@
         }
         @media (prefers-reduced-motion: reduce) {
             html { scroll-behavior: auto; }
-            .fill { transition: none; }
+            .fill, .acc-toggle::after { transition: none; }
         }
     </style>
 </head>
@@ -537,6 +607,86 @@
                         <p>Так и крутят дальше. На этих трёх чеках прямая приходит к w = 2 и b = 0: 2×50 = 100, 2×80 = 160, 2×120 = 240. Ручки фиксируют. Градиент больше не считают.</p>
                         <p><strong>Оценка нового дома.</strong> На сайт вводят 70 м². Этой продажи в архиве нет, настоящей цены нет. Берут зафиксированные ручки:</p>
                         <p class="formula">2 · 70 + 0 = 140 тысяч долларов</p>
+                    </div>
+                    <div class="example">
+                        <div class="label">Пример. Десять домов</div>
+                        <p>Те же продажи, что выше, и ещё семь. У трёх знакомых домов цены прежние: 50 м² за 100, 80 м² за 160, 120 м² за 240. К каждому дому дописана вторая величина — площадь участка. Формула: цена = w · площадь дома + v · площадь участка + b. Ручка w — тысячи долларов за м² дома, v — за м² участка, b — базовая цена. Старт w = 0, v = 0, b = 0, длина шага 0.0001.</p>
+                        <div class="sheet">
+                            <table>
+                                <caption>Отмеченные строки — три дома из прошлого примера. Пока участок растёт вместе с домом, старая цена «2 · площадь» ещё совпадает с архивом. У дома 6 участок 40 м², цена 165: формула 2 · 90 дала бы 180.</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Дом</th>
+                                        <th scope="col">Площадь</th>
+                                        <th scope="col">Участок</th>
+                                        <th scope="col">Цена</th>
+                                        <th scope="col">Цена × площадь</th>
+                                        <th scope="col">Цена × участок</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>1</td><td>40</td><td>20</td><td>80</td><td>3200</td><td>1600</td></tr>
+                                    <tr class="known"><td>2</td><td>50</td><td>30</td><td>100</td><td>5000</td><td>3000</td></tr>
+                                    <tr><td>3</td><td>60</td><td>40</td><td>120</td><td>7200</td><td>4800</td></tr>
+                                    <tr><td>4</td><td>70</td><td>50</td><td>140</td><td>9800</td><td>7000</td></tr>
+                                    <tr class="known"><td>5</td><td>80</td><td>60</td><td>160</td><td>12800</td><td>9600</td></tr>
+                                    <tr><td>6</td><td>90</td><td>40</td><td>165</td><td>14850</td><td>6600</td></tr>
+                                    <tr><td>7</td><td>100</td><td>80</td><td>200</td><td>20000</td><td>16000</td></tr>
+                                    <tr><td>8</td><td>110</td><td>60</td><td>205</td><td>22550</td><td>12300</td></tr>
+                                    <tr class="known"><td>9</td><td>120</td><td>100</td><td>240</td><td>28800</td><td>24000</td></tr>
+                                    <tr><td>10</td><td>140</td><td>100</td><td>270</td><td>37800</td><td>27000</td></tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr><td>Сумма</td><td></td><td></td><td>1680</td><td>162000</td><td>111900</td></tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <p><strong>Попытка 1.</strong> Формула пока даёт ноль: все три ручки на нуле. Ошибка каждого дома — минус его цена. Подсказка для b — средняя ошибка. Подсказки для w и v — та же ошибка, умноженная на свою площадь, то есть минус два последних столбца.</p>
+                        <p class="formula">b: −1680 / 10 = −168</p>
+                        <p class="formula">w: −162000 / 10 = −16200</p>
+                        <p class="formula">v: −111900 / 10 = −11190</p>
+                        <p class="formula">w = 0 − 0.0001 · (−16200) = 1.620</p>
+                        <p class="formula">v = 0 − 0.0001 · (−11190) = 1.119</p>
+                        <p class="formula">b = 0 − 0.0001 · (−168) = 0.0168</p>
+                        <p><strong>Попытка 2.</strong> Формула стала цена = 1.620 · дом + 1.119 · участок + 0.0168. Обе площади большие, обе ручки прыгнули сразу, и цены вышли выше архива.</p>
+                        <div class="sheet">
+                            <table>
+                                <caption>Оценка — ответ новой формулы. Два последних столбца — ошибка, умноженная на площадь дома и на площадь участка.</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Дом</th>
+                                        <th scope="col">Оценка</th>
+                                        <th scope="col">Ошибка</th>
+                                        <th scope="col">Ошибка × площадь</th>
+                                        <th scope="col">Ошибка × участок</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>1</td><td>87.2</td><td>7.2</td><td>288</td><td>144</td></tr>
+                                    <tr class="known"><td>2</td><td>114.6</td><td>14.6</td><td>730</td><td>438</td></tr>
+                                    <tr><td>3</td><td>142.0</td><td>22.0</td><td>1320</td><td>880</td></tr>
+                                    <tr><td>4</td><td>169.4</td><td>29.4</td><td>2058</td><td>1470</td></tr>
+                                    <tr class="known"><td>5</td><td>196.8</td><td>36.8</td><td>2944</td><td>2208</td></tr>
+                                    <tr><td>6</td><td>190.6</td><td>25.6</td><td>2304</td><td>1024</td></tr>
+                                    <tr><td>7</td><td>251.5</td><td>51.5</td><td>5150</td><td>4120</td></tr>
+                                    <tr><td>8</td><td>245.4</td><td>40.4</td><td>4444</td><td>2424</td></tr>
+                                    <tr class="known"><td>9</td><td>306.3</td><td>66.3</td><td>7956</td><td>6630</td></tr>
+                                    <tr><td>10</td><td>338.7</td><td>68.7</td><td>9618</td><td>6870</td></tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr><td>Сумма</td><td></td><td>362.5</td><td>36812</td><td>26208</td></tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <p class="formula">b: 362.5 / 10 = 36.25</p>
+                        <p class="formula">w: 36812 / 10 = 3681.2</p>
+                        <p class="formula">v: 26208 / 10 = 2620.8</p>
+                        <p class="formula">w = 1.620 − 0.0001 · 3681.2 ≈ 1.252</p>
+                        <p class="formula">v = 1.119 − 0.0001 · 2620.8 ≈ 0.857</p>
+                        <p class="formula">b = 0.0168 − 0.0001 · 36.25 ≈ 0.013</p>
+                        <p>Дальше ручки крутят ещё много раз. Площадь дома и площадь участка тянут цену в одну сторону, поэтому сходятся не сразу. В конце w = 1.5, v = 0.5, b = 10. Знакомый дом снова сходится: 1.5·50 + 0.5·30 + 10 = 100. Так же выходят 160 и 240.</p>
+                        <p><strong>Оценка нового дома.</strong> На сайт вводят дом 70 м² и участок 40 м². Такой пары в архиве нет. Берут зафиксированные ручки:</p>
+                        <p class="formula">1.5 · 70 + 0.5 · 40 + 10 = 135 тысяч долларов</p>
                     </div>
                 </div>
 
@@ -918,6 +1068,37 @@
     <p>Восемь ступеней выше — порядок изучения от математики до запуска большой модели. Страница объясняет путь и сама модель не обучает.</p>
 </footer>
 
+<script>
+    let accSeq = 0
+
+    function initAccordions(root) {
+        root.querySelectorAll(".topic").forEach((topic) => {
+            const title = topic.querySelector(":scope > h4")
+            if (!title || title.querySelector(".acc-toggle")) return
+            const body = document.createElement("div")
+            body.className = "acc-body"
+            body.id = "acc-" + accSeq++
+            body.hidden = true
+            while (title.nextSibling) body.append(title.nextSibling)
+            topic.append(body)
+
+            const toggle = document.createElement("button")
+            toggle.type = "button"
+            toggle.className = "acc-toggle"
+            toggle.setAttribute("aria-expanded", "false")
+            toggle.setAttribute("aria-controls", body.id)
+            toggle.append(...title.childNodes)
+            title.append(toggle)
+            toggle.addEventListener("click", () => {
+                const open = toggle.getAttribute("aria-expanded") !== "true"
+                toggle.setAttribute("aria-expanded", String(open))
+                body.hidden = !open
+            })
+        })
+    }
+
+    initAccordions(document.querySelector("main"))
+</script>
 <script>
 (function () {
     var choices = document.getElementById("choices");
