@@ -152,6 +152,7 @@
             letter-spacing: -0.015em;
             line-height: 1.25;
         }
+        .step > div { min-width: 0; }
         .step p { margin: 0.55rem 0 0; }
         .step p:first-of-type { margin-top: 0; }
 
@@ -207,7 +208,8 @@
             font-weight: 600;
         }
         .sheet td:first-child, .sheet th:first-child { text-align: left; }
-        .sheet tr.known td { background: #fff6ea; }
+        .sheet tr.known td, .sheet tr.moved td { background: #fff6ea; }
+        .sheet .txt { text-align: left; white-space: normal; }
         .sheet tfoot td {
             border-bottom: 0;
             border-top: 1px solid var(--line);
@@ -723,6 +725,76 @@
                     <div class="example">
                         <div class="label">Пример</div>
                         <p>На такой карте шаг от «мужчина» к «король» похож на шаг от «женщина» к «королева». Модель не заучила титулы. Она видела, что эти слова живут в похожих предложениях. В LLM своя карта чисел учится уже внутри сети.</p>
+                    </div>
+                    <div class="example">
+                        <div class="label">Пример. Один шаг, словарь из 10 слов</div>
+                        <p>Карта двумерная, d = 2. У каждого слова две координаты. Матрица эмбеддингов E — 10 × 2, пока ещё до обучения:</p>
+                        <div class="sheet">
+                            <table>
+                                <caption>Исходная матрица E. Подсвечены слова, которые встретятся в учебном предложении.</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">ID</th>
+                                        <th class="txt" scope="col">Слово</th>
+                                        <th scope="col">Координаты (X, Y)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="moved"><td>0</td><td class="txt">Кот</td><td>(2.0, 8.0)</td></tr>
+                                    <tr class="moved"><td>1</td><td class="txt">Собака</td><td>(8.0, 2.0)</td></tr>
+                                    <tr><td>2</td><td class="txt">Волк</td><td>(1.0, 3.0)</td></tr>
+                                    <tr><td>3</td><td class="txt">Яблоко</td><td>(9.0, 9.0)</td></tr>
+                                    <tr><td>4</td><td class="txt">Груша</td><td>(3.0, 7.0)</td></tr>
+                                    <tr><td>5</td><td class="txt">Банан</td><td>(7.0, 4.0)</td></tr>
+                                    <tr><td>6</td><td class="txt">Машина</td><td>(2.0, 1.0)</td></tr>
+                                    <tr><td>7</td><td class="txt">Самолет</td><td>(9.0, 1.0)</td></tr>
+                                    <tr><td>8</td><td class="txt">Телефон</td><td>(4.0, 4.0)</td></tr>
+                                    <tr><td>9</td><td class="txt">Ноутбук</td><td>(6.0, 8.0)</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p>Предложение: «Кот и собака бегают». На этом шаге работаем только с ID 0 и ID 1. Скорость обучения η = 0.1. Штраф — половина квадрата расстояния: чем дальше точки, тем он больше, и шаг тянет их друг к другу.</p>
+                        <p><strong>Шаг 1.</strong> Достаём векторы из матрицы E.</p>
+                        <p class="formula">e<sub>кот</sub> = (2.0, 8.0)</p>
+                        <p class="formula">e<sub>собака</sub> = (8.0, 2.0)</p>
+                        <p><strong>Шаг 2.</strong> Разница координат: Собака минус Кот.</p>
+                        <p class="formula">Δ = e<sub>собака</sub> − e<sub>кот</sub> = (8.0 − 2.0, 2.0 − 8.0) = (6.0, −6.0)</p>
+                        <p><strong>Шаг 3.</strong> Ошибка — половина квадрата этого расстояния.</p>
+                        <p class="formula">L = 1/2 · (6.0² + (−6.0)²) = 1/2 · (36 + 36) = 36.0</p>
+                        <p><strong>Шаг 4.</strong> Градиент — направление, куда ошибка растёт быстрее всего. Шаг пойдёт в противоположную сторону. У Кота градиент равен −Δ, у Собаки — +Δ.</p>
+                        <p class="formula">∇<sub>кот</sub> L = −Δ = (−6.0, 6.0)</p>
+                        <p class="formula">∇<sub>собака</sub> L = +Δ = (6.0, −6.0)</p>
+                        <p><strong>Шаг 5.</strong> Обновление: из вектора вычитаем скорость, умноженную на градиент.</p>
+                        <p class="formula">e<sub>кот</sub> = (2.0, 8.0) − 0.1 · (−6.0, 6.0) = (2.0 + 0.6, 8.0 − 0.6) = (2.6, 7.4)</p>
+                        <p class="formula">e<sub>собака</sub> = (8.0, 2.0) − 0.1 · (6.0, −6.0) = (8.0 − 0.6, 2.0 + 0.6) = (7.4, 2.6)</p>
+                        <p>Кот сдвинулся к Собаке, Собака — к Коту. Остальные восемь слов в этом предложении не участвовали, их координаты те же.</p>
+                        <div class="sheet">
+                            <table>
+                                <caption>Матрица E после одного обновления. Градиент остальных слов нулевой.</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">ID</th>
+                                        <th class="txt" scope="col">Слово</th>
+                                        <th scope="col">Было</th>
+                                        <th scope="col">Стало</th>
+                                        <th scope="col">Градиент</th>
+                                        <th class="txt" scope="col">Изменение</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="moved"><td>0</td><td class="txt">Кот</td><td>(2.0, 8.0)</td><td>(2.6, 7.4)</td><td>[−6.0, 6.0]</td><td class="txt">Подвинулся к Собаке</td></tr>
+                                    <tr class="moved"><td>1</td><td class="txt">Собака</td><td>(8.0, 2.0)</td><td>(7.4, 2.6)</td><td>[6.0, −6.0]</td><td class="txt">Подвинулась к Коту</td></tr>
+                                    <tr><td>2</td><td class="txt">Волк</td><td>(1.0, 3.0)</td><td>(1.0, 3.0)</td><td>[0, 0]</td><td class="txt">Нет изменений</td></tr>
+                                    <tr><td>3</td><td class="txt">Яблоко</td><td>(9.0, 9.0)</td><td>(9.0, 9.0)</td><td>[0, 0]</td><td class="txt">Нет изменений</td></tr>
+                                    <tr><td>4</td><td class="txt">Груша</td><td>(3.0, 7.0)</td><td>(3.0, 7.0)</td><td>[0, 0]</td><td class="txt">Нет изменений</td></tr>
+                                    <tr><td>5</td><td class="txt">Банан</td><td>(7.0, 4.0)</td><td>(7.0, 4.0)</td><td>[0, 0]</td><td class="txt">Нет изменений</td></tr>
+                                    <tr><td>6</td><td class="txt">Машина</td><td>(2.0, 1.0)</td><td>(2.0, 1.0)</td><td>[0, 0]</td><td class="txt">Нет изменений</td></tr>
+                                    <tr><td>7</td><td class="txt">Самолет</td><td>(9.0, 1.0)</td><td>(9.0, 1.0)</td><td>[0, 0]</td><td class="txt">Нет изменений</td></tr>
+                                    <tr><td>8</td><td class="txt">Телефон</td><td>(4.0, 4.0)</td><td>(4.0, 4.0)</td><td>[0, 0]</td><td class="txt">Нет изменений</td></tr>
+                                    <tr><td>9</td><td class="txt">Ноутбук</td><td>(6.0, 8.0)</td><td>(6.0, 8.0)</td><td>[0, 0]</td><td class="txt">Нет изменений</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
