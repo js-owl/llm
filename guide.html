@@ -210,6 +210,21 @@
         .sheet td:first-child, .sheet th:first-child { text-align: left; }
         .sheet tr.known td, .sheet tr.moved td { background: #fff6ea; }
         .sheet .txt { text-align: left; white-space: normal; }
+        .sheet.fit {
+            width: max-content;
+            max-width: 100%;
+        }
+        .sheet.fit table { width: auto; }
+        .sheet.fit th, .sheet.fit td { padding: 0.08rem 0.55rem; }
+        .sheet th.moved, .sheet td.moved { background: #fff6ea; }
+        .sheet.cross th, .sheet.cross td { text-align: center; padding: 0.08rem 0.4rem; }
+        .sheet.cross tbody th {
+            text-align: left;
+            position: sticky;
+            left: 0;
+            background: #fff;
+            z-index: 1;
+        }
         .sheet tfoot td {
             border-bottom: 0;
             border-top: 1px solid var(--line);
@@ -729,30 +744,67 @@
                     <div class="example">
                         <div class="label">Пример. Один шаг, словарь из 10 слов</div>
                         <p>Карта двумерная, d = 2. У каждого слова две координаты. Матрица эмбеддингов E — 10 × 2, пока ещё до обучения:</p>
-                        <div class="sheet">
+                        <div class="sheet fit cross">
                             <table>
-                                <caption>Исходная матрица E. Подсвечены слова, которые встретятся в учебном предложении.</caption>
                                 <thead>
                                     <tr>
                                         <th scope="col">ID</th>
-                                        <th class="txt" scope="col">Слово</th>
-                                        <th scope="col">Координаты (X, Y)</th>
+                                        <th class="moved" scope="col">0</th>
+                                        <th class="moved" scope="col">1</th>
+                                        <th scope="col">2</th>
+                                        <th scope="col">3</th>
+                                        <th scope="col">4</th>
+                                        <th scope="col">5</th>
+                                        <th scope="col">6</th>
+                                        <th scope="col">7</th>
+                                        <th scope="col">8</th>
+                                        <th scope="col">9</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr class="moved"><td>0</td><td class="txt">Кот</td><td>(2.0, 8.0)</td></tr>
-                                    <tr class="moved"><td>1</td><td class="txt">Собака</td><td>(8.0, 2.0)</td></tr>
-                                    <tr><td>2</td><td class="txt">Волк</td><td>(1.0, 3.0)</td></tr>
-                                    <tr><td>3</td><td class="txt">Яблоко</td><td>(9.0, 9.0)</td></tr>
-                                    <tr><td>4</td><td class="txt">Груша</td><td>(3.0, 7.0)</td></tr>
-                                    <tr><td>5</td><td class="txt">Банан</td><td>(7.0, 4.0)</td></tr>
-                                    <tr><td>6</td><td class="txt">Машина</td><td>(2.0, 1.0)</td></tr>
-                                    <tr><td>7</td><td class="txt">Самолет</td><td>(9.0, 1.0)</td></tr>
-                                    <tr><td>8</td><td class="txt">Телефон</td><td>(4.0, 4.0)</td></tr>
-                                    <tr><td>9</td><td class="txt">Ноутбук</td><td>(6.0, 8.0)</td></tr>
+                                    <tr>
+                                        <th scope="row">Слово</th>
+                                        <td class="moved">Кот</td>
+                                        <td class="moved">Собака</td>
+                                        <td>Волк</td>
+                                        <td>Яблоко</td>
+                                        <td>Груша</td>
+                                        <td>Банан</td>
+                                        <td>Машина</td>
+                                        <td>Самолет</td>
+                                        <td>Телефон</td>
+                                        <td>Ноутбук</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">X</th>
+                                        <td class="moved">2.0</td>
+                                        <td class="moved">8.0</td>
+                                        <td>1.0</td>
+                                        <td>9.0</td>
+                                        <td>3.0</td>
+                                        <td>7.0</td>
+                                        <td>2.0</td>
+                                        <td>9.0</td>
+                                        <td>4.0</td>
+                                        <td>6.0</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Y</th>
+                                        <td class="moved">8.0</td>
+                                        <td class="moved">2.0</td>
+                                        <td>3.0</td>
+                                        <td>9.0</td>
+                                        <td>7.0</td>
+                                        <td>4.0</td>
+                                        <td>1.0</td>
+                                        <td>1.0</td>
+                                        <td>4.0</td>
+                                        <td>8.0</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
+                        <p class="fine">Исходная матрица E. Подсвечены слова, которые встретятся в учебном предложении.</p>
                         <p>Предложение: «Кот и собака бегают». На этом шаге работаем только с ID 0 и ID 1. Скорость обучения η = 0.1. Штраф — половина квадрата расстояния: чем дальше точки, тем он больше, и шаг тянет их друг к другу.</p>
                         <p><strong>Шаг 1.</strong> Достаём векторы из матрицы E.</p>
                         <p class="formula">e<sub>кот</sub> = (2.0, 8.0)</p>
