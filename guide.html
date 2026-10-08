@@ -989,10 +989,251 @@
 
                 <div class="topic">
                     <h4>RNN / LSTM</h4>
-                    <p>Раньше фразу читали строго слева направо, по одному слову, и тащили память в следующее слово. LSTM — сеть с более крепкой памятью. Длинную фразу она всё равно начинает забывать, и прочитать все слова разом не может: каждое ждёт предыдущее.</p>
+                    
                     <div class="example">
-                        <div class="label">Пример</div>
-                        <p>«Кот, который жил у бабушки в деревне у реки, ___». К дырке сеть должна помнить, что речь о коте. У короткой памяти к этому месту «кот» уже потускнел, и в дырку легче попадает что-то про реку.</p>
+                        <div class="label">Пример. Простая RNN на эмбеддингах из словаря</div>
+                        <p>Берём матрицу эмбеддингов E из прошлого примера. Словарь 10 слов, координаты двумерные (d = 2). Фраза: «Кот и собака». RNN читает слова по порядку и обновляет скрытое состояние h.</p>
+                        
+                        <p><strong>Исходные эмбеддинги (после обучения из прошлого примера):</strong></p>
+                        <div class="sheet fit cross">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">ID</th>
+                                        <th class="moved" scope="col">0</th>
+                                        <th class="moved" scope="col">1</th>
+                                        <th scope="col">2</th>
+                                        <th scope="col">3</th>
+                                        <th scope="col">4</th>
+                                        <th scope="col">5</th>
+                                        <th scope="col">6</th>
+                                        <th scope="col">7</th>
+                                        <th scope="col">8</th>
+                                        <th scope="col">9</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Слово</th>
+                                        <td class="moved">Кот</td>
+                                        <td class="moved">Собака</td>
+                                        <td>Волк</td>
+                                        <td>Яблоко</td>
+                                        <td>Груша</td>
+                                        <td>Банан</td>
+                                        <td>Машина</td>
+                                        <td>Самолет</td>
+                                        <td>Телефон</td>
+                                        <td>Ноутбук</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">X</th>
+                                        <td class="moved">2.6</td>
+                                        <td class="moved">7.4</td>
+                                        <td>1.0</td>
+                                        <td>9.0</td>
+                                        <td>3.0</td>
+                                        <td>7.0</td>
+                                        <td>2.0</td>
+                                        <td>9.0</td>
+                                        <td>4.0</td>
+                                        <td>6.0</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Y</th>
+                                        <td class="moved">7.4</td>
+                                        <td class="moved">2.6</td>
+                                        <td>3.0</td>
+                                        <td>9.0</td>
+                                        <td>7.0</td>
+                                        <td>4.0</td>
+                                        <td>1.0</td>
+                                        <td>1.0</td>
+                                        <td>4.0</td>
+                                        <td>8.0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="fine">Обновлённые эмбеддинги из примера выше. Подсвечены Кот и Собака — они встретятся в фразе для RNN.</p>
+                        
+                        <p><strong>Веса RNN (придуманные для примера):</strong></p>
+                        <ul class="notebook">
+                            <li>W<sub>xh</sub> — матрица 2×2 для входа (эмбеддинга): [[0.5, 0.3], [0.2, 0.4]]</li>
+                            <li>W<sub>hh</sub> — матрица 2×2 для памяти: [[0.6, 0.1], [0.1, 0.5]]</li>
+                            <li>b<sub>h</sub> — смещение: [0.1, 0.1]</li>
+                        </ul>
+                        
+                        <p><strong>Формула RNN:</strong></p>
+                        <p class="formula">h<sub>t</sub> = tanh(W<sub>xh</sub> · x<sub>t</sub> + W<sub>hh</sub> · h<sub>t−1</sub> + b<sub>h</sub>)</p>
+                        
+                        <p><strong>Шаг 0.</strong> Старт. Память пустая: h<sub>0</sub> = (0, 0).</p>
+                        
+                        <p><strong>Шаг 1.</strong> Читаем слово «Кот». Берём его эмбеддинг: x<sub>1</sub> = (2.6, 7.4).</p>
+                        <p>Вход × W<sub>xh</sub>:</p>
+                        <p class="formula">
+                            [2.6, 7.4] · [[0.5, 0.3], [0.2, 0.4]] =<br>
+                            [(2.6·0.5 + 7.4·0.2), (2.6·0.3 + 7.4·0.4)] =<br>
+                            [1.3 + 1.48, 0.78 + 2.96] = [2.78, 3.74]
+                        </p>
+                        
+                        <p>Память × W<sub>hh</sub>:</p>
+                        <p class="formula">
+                            [0, 0] · [[0.6, 0.1], [0.1, 0.5]] = [0, 0]
+                        </p>
+                        
+                        <p>Складываем + смещение:</p>
+                        <p class="formula">
+                            [2.78, 3.74] + [0, 0] + [0.1, 0.1] = [2.88, 3.84]
+                        </p>
+                        
+                        <p>Применяем tanh (сжимает к диапазону −1 ... +1):</p>
+                        <p class="formula">
+                            h<sub>1</sub> = [tanh(2.88), tanh(3.84)] ≈ [0.994, 0.999]
+                        </p>
+                        
+                        <p><strong>Шаг 2.</strong> Читаем слово «Собака». Берём эмбеддинг: x<sub>2</sub> = (7.4, 2.6).</p>
+                        <p>Вход × W<sub>xh</sub>:</p>
+                        <p class="formula">
+                            [7.4, 2.6] · [[0.5, 0.3], [0.2, 0.4]] =<br>
+                            [(7.4·0.5 + 2.6·0.2), (7.4·0.3 + 2.6·0.4)] =<br>
+                            [3.7 + 0.52, 2.22 + 1.04] = [4.22, 3.26]
+                        </p>
+                        
+                        <p>Память × W<sub>hh</sub> (теперь память не пустая):</p>
+                        <p class="formula">
+                            [0.994, 0.999] · [[0.6, 0.1], [0.1, 0.5]] =<br>
+                            [(0.994·0.6 + 0.999·0.1), (0.994·0.1 + 0.999·0.5)] =<br>
+                            [0.596 + 0.100, 0.099 + 0.500] = [0.696, 0.599]
+                        </p>
+                        
+                        <p>Складываем + смещение:</p>
+                        <p class="formula">
+                            [4.22, 3.26] + [0.696, 0.599] + [0.1, 0.1] = [5.016, 3.959]
+                        </p>
+                        
+                        <p>Применяем tanh:</p>
+                        <p class="formula">
+                            h<sub>2</sub> = [tanh(5.016), tanh(3.959)] ≈ [0.9999, 0.9995]
+                        </p>
+                        
+                        <div class="sheet">
+                            <table>
+                                <caption>Состояние памяти RNN после каждого слова. Память h накапливает информацию о прочитанных словах.</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Шаг</th>
+                                        <th class="txt" scope="col">Слово</th>
+                                        <th class="txt" scope="col">Эмбеддинг x</th>
+                                        <th class="txt" scope="col">Скрытое состояние h</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>0</td><td class="txt">—</td><td class="txt">—</td><td class="txt">(0.000, 0.000)</td></tr>
+                                    <tr class="moved"><td>1</td><td class="txt">Кот</td><td class="txt">(2.6, 7.4)</td><td class="txt">(0.994, 0.999)</td></tr>
+                                    <tr class="moved"><td>2</td><td class="txt">Собака</td><td class="txt">(7.4, 2.6)</td><td class="txt">(0.9999, 0.9995)</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <p><strong>Итог:</strong> RNN накопила память о двух словах в векторе h<sub>2</sub>. Этот вектор передаётся дальше — например, в слой классификации или для предсказания следующего слова.</p>
+                    </div>
+                    
+                    <div class="example">
+                        <div class="label">Пример. LSTM на тех же данных</div>
+                        <p>LSTM сложнее: у неё три «ворот» (забыть, запомнить, выдать) и долгая память c. Короткая RNN-память называлась h, теперь в LSTM две ячейки: c (cell state, долгая) и h (hidden state, рабочая).</p>
+                        
+                        <p><strong>Веса LSTM (упрощённые):</strong></p>
+                        <ul class="notebook">
+                            <li>f<sub>t</sub> (forget gate, ворота забывания) — сколько старой памяти оставить</li>
+                            <li>i<sub>t</sub> (input gate, ворота входа) — сколько нового добавить</li>
+                            <li>o<sub>t</sub> (output gate, ворота выхода) — что показать наружу</li>
+                        </ul>
+                        
+                        <p><strong>Формулы LSTM:</strong></p>
+                        <p class="formula">
+                            f<sub>t</sub> = σ(W<sub>f</sub>·[h<sub>t−1</sub>, x<sub>t</sub>])<br>
+                            i<sub>t</sub> = σ(W<sub>i</sub>·[h<sub>t−1</sub>, x<sub>t</sub>])<br>
+                            o<sub>t</sub> = σ(W<sub>o</sub>·[h<sub>t−1</sub>, x<sub>t</sub>])<br>
+                            c̃<sub>t</sub> = tanh(W<sub>c</sub>·[h<sub>t−1</sub>, x<sub>t</sub>])<br>
+                            c<sub>t</sub> = f<sub>t</sub> ⊙ c<sub>t−1</sub> + i<sub>t</sub> ⊙ c̃<sub>t</sub><br>
+                            h<sub>t</sub> = o<sub>t</sub> ⊙ tanh(c<sub>t</sub>)
+                        </p>
+                        <p class="fine">σ — сигмоида (выдаёт 0...1), ⊙ — поэлементное умножение.</p>
+                        
+                        <p><strong>Шаг 0.</strong> Старт. c<sub>0</sub> = (0, 0), h<sub>0</sub> = (0, 0).</p>
+                        
+                        <p><strong>Шаг 1.</strong> Слово «Кот», x<sub>1</sub> = (2.6, 7.4).</p>
+                        <p>Пусть после вычислений с весами (для краткости опускаем умножение матриц):</p>
+                        <p class="formula">
+                            f<sub>1</sub> = σ(...) ≈ (0.5, 0.5) — половину старого оставить<br>
+                            i<sub>1</sub> = σ(...) ≈ (0.8, 0.8) — много нового взять<br>
+                            o<sub>1</sub> = σ(...) ≈ (0.7, 0.7) — показать 70%<br>
+                            c̃<sub>1</sub> = tanh(...) ≈ (0.9, 0.95) — кандидат в память
+                        </p>
+                        
+                        <p>Обновляем долгую память:</p>
+                        <p class="formula">
+                            c<sub>1</sub> = (0.5, 0.5) ⊙ (0, 0) + (0.8, 0.8) ⊙ (0.9, 0.95) =<br>
+                            (0, 0) + (0.72, 0.76) = (0.72, 0.76)
+                        </p>
+                        
+                        <p>Выход:</p>
+                        <p class="formula">
+                            h<sub>1</sub> = (0.7, 0.7) ⊙ tanh(0.72, 0.76) ≈<br>
+                            (0.7, 0.7) ⊙ (0.617, 0.641) ≈ (0.432, 0.449)
+                        </p>
+                        
+                        <p><strong>Шаг 2.</strong> Слово «Собака», x<sub>2</sub> = (7.4, 2.6).</p>
+                        <p>Новые значения ворот (условно):</p>
+                        <p class="formula">
+                            f<sub>2</sub> ≈ (0.9, 0.9) — почти всё старое помним<br>
+                            i<sub>2</sub> ≈ (0.6, 0.6) — новое добавляем умеренно<br>
+                            o<sub>2</sub> ≈ (0.8, 0.8) — показываем 80%<br>
+                            c̃<sub>2</sub> ≈ (0.85, 0.88)
+                        </p>
+                        
+                        <p>Обновляем c:</p>
+                        <p class="formula">
+                            c<sub>2</sub> = (0.9, 0.9) ⊙ (0.72, 0.76) + (0.6, 0.6) ⊙ (0.85, 0.88) =<br>
+                            (0.648, 0.684) + (0.51, 0.528) = (1.158, 1.212)
+                        </p>
+                        
+                        <p>Выход:</p>
+                        <p class="formula">
+                            h<sub>2</sub> = (0.8, 0.8) ⊙ tanh(1.158, 1.212) ≈<br>
+                            (0.8, 0.8) ⊙ (0.819, 0.838) ≈ (0.655, 0.670)
+                        </p>
+                        
+                        <div class="sheet">
+                            <table>
+                                <caption>Состояние LSTM после каждого слова. Долгая память c растёт постепенно, рабочая h фильтруется воротами.</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Шаг</th>
+                                        <th class="txt" scope="col">Слово</th>
+                                        <th class="txt" scope="col">Долгая память c</th>
+                                        <th class="txt" scope="col">Рабочая память h</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>0</td><td class="txt">—</td><td class="txt">(0.000, 0.000)</td><td class="txt">(0.000, 0.000)</td></tr>
+                                    <tr class="moved"><td>1</td><td class="txt">Кот</td><td class="txt">(0.720, 0.760)</td><td class="txt">(0.432, 0.449)</td></tr>
+                                    <tr class="moved"><td>2</td><td class="txt">Собака</td><td class="txt">(1.158, 1.212)</td><td class="txt">(0.655, 0.670)</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <p><strong>Итог:</strong> LSTM запомнила информацию о «Кот» в ячейке c<sub>1</sub> и частично сохранила её в c<sub>2</sub> (коэффициент забывания f<sub>2</sub> = 0.9). Простая RNN на длинной фразе «забывает» начало — числа в h перезаписываются. У LSTM память c течёт отдельно и контролируется воротами, поэтому даже через 10–20 слов информация о «Кот» может остаться.</p>
+                        
+                        <div class="pair">
+                            <div>
+                                <p><strong>RNN:</strong> Одна ячейка h, простая формула. На коротких фразах работает, на длинных — забывает начало.</p>
+                            </div>
+                            <div class="take">
+                                <p><strong>LSTM:</strong> Две ячейки (c и h), три ворота. Держит память дольше, сложнее в вычислениях. До трансформера LSTM была главным инструментом для длинного текста.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
