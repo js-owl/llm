@@ -435,6 +435,48 @@
             color: var(--soft);
             font-size: 0.95rem;
         }
+        .walk {
+            margin-top: 0.85rem;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 0.8rem 0.85rem 0.95rem;
+        }
+        .walk-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.55rem 0.75rem;
+        }
+        .walk-bar p { margin: 0; flex: 1 1 12rem; font-weight: 600; }
+        .walk button {
+            background: var(--paper);
+            color: var(--ink);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 0.35rem 0.9rem;
+            font: inherit;
+            cursor: pointer;
+        }
+        .walk button:disabled { opacity: 0.45; cursor: default; }
+        @media (hover: hover) {
+            .walk button:not(:disabled):hover { border-color: var(--terra); }
+        }
+        .walk-stage { margin-top: 0.35rem; overflow-x: auto; }
+        .walk svg { display: block; width: 100%; min-width: 32rem; height: auto; }
+        .walk .nn-stack { display: none; }
+        .walk-note { margin: 0.4rem 0 0; color: var(--soft); }
+        .walk .nn-head { fill: var(--amber-deep); font-size: 15px; font-weight: 600; }
+        .walk .nn-name { fill: var(--soft); font-size: 15px; }
+        .walk .nn-val { fill: var(--ink); font-size: 16px; font-weight: 600; }
+        .walk circle { fill: #fff; stroke: #e4d3c0; stroke-width: 1.6; }
+        .walk line { stroke: #eadccb; stroke-width: 1.6; }
+        .walk line.mute { stroke-dasharray: 4 4; }
+        .walk g.on circle { fill: #fff6ea; stroke: var(--terra); stroke-width: 2.4; }
+        .walk g.dead circle { fill: #f6efe6; stroke: #c9b39e; }
+        .walk g.dead .nn-val { fill: var(--terra); }
+        .walk g.win circle { fill: #f2f6f2; stroke: var(--moss); stroke-width: 2.4; }
+        .walk line.on { stroke: var(--terra-soft); stroke-width: 2.2; }
         .plots {
             display: grid;
             gap: 0.7rem;
@@ -454,6 +496,9 @@
         }
 
         @media (max-width: 560px) {
+            .walk .nn-wide { display: none; }
+            .walk .nn-stack { display: block; }
+            .walk svg { min-width: 0; }
             .step { grid-template-columns: 1fr; gap: 0.15rem; }
             .compare { grid-template-columns: 1fr; }
             .choice, .bar-row { grid-template-columns: 3.4rem 1fr 2.7rem; }
@@ -731,6 +776,217 @@
                         <p>Тетрадь: «раму». Модель уверена в «раму» на 90% — loss маленький. Уверена в «пол» на 90% — loss большой. Следующий шаг спуска крутит ручки так, чтобы большое число стало меньше.</p>
                     </div>
                 </div>
+
+                <div class="topic">
+                    <h4>Neural Network</h4>
+                    <p>Нейросеть — стопка матричных умножений. Каждый слой берёт список чисел, умножает на свою таблицу весов, добавляет сдвиг и передаёт дальше. Между слоями стоят функции активации — они добавляют изгибы, без которых вся стопка схлопнулась бы в одну прямую. У слоёв свои веса, градиентный спуск крутит их все сразу.</p>
+                    <div class="example">
+                        <div class="label">Пример. Классификация: дождь или солнце</div>
+                        <p>Вход: два числа (температура и влажность). Выход: два числа (шанс дождя и шанс солнца). Сеть из двух слоёв. Между ними функция активации, в конце softmax.</p>
+                        <p><strong>Архитектура:</strong></p>
+                        <ul class="notebook">
+                            <li>Вход x: 2 числа</li>
+                            <li>Скрытый слой h: 3 нейрона (веса W₁ размера 2×3, сдвиг b₁)</li>
+                            <li>Активация: ReLU</li>
+                            <li>Выходной слой y: 2 нейрона (веса W₂ размера 3×2, сдвиг b₂)</li>
+                            <li>Softmax: превращает в шансы</li>
+                        </ul>
+                        <p><strong>Пример данных.</strong> День 1: температура 15°C, влажность 80%, был дождь. День 2: температура 28°C, влажность 30%, было солнце.</p>
+                        <p>Нормализуем числа. Температуру делим на 30, влажность на 100:</p>
+                        <ul class="notebook">
+                            <li>День 1: x = (0.5, 0.8), правильный ответ: дождь</li>
+                            <li>День 2: x = (0.93, 0.3), правильный ответ: солнце</li>
+                        </ul>
+                        <p>Инициализация весов (случайные малые числа):</p>
+                        <p class="formula">
+                            W₁ = [[0.1, 0.2, −0.1], [0.3, −0.2, 0.4]]<br>
+                            b₁ = [0, 0, 0]<br>
+                            W₂ = [[0.5, −0.3], [−0.2, 0.4], [0.3, 0.2]]<br>
+                            b₂ = [0, 0]
+                        </p>
+                        <p>Тот же день 1 можно пройти по сети кнопками. Формулы ниже — та же арифметика по шагам.</p>
+                        <div class="walk" id="nn-walk">
+                            <div class="walk-bar">
+                                <button type="button" id="nn-prev">Назад</button>
+                                <p id="nn-count">Шаг 1 из 5. Вход</p>
+                                <button type="button" id="nn-next">Дальше</button>
+                            </div>
+                            <div class="walk-stage">
+                                <svg class="nn-wide" viewBox="0 0 720 336" role="img" aria-labelledby="nn-title nn-desc" font-family="Source Sans 3, Segoe UI, sans-serif">
+                                    <title id="nn-title">Прямой проход сети: температура и влажность, затем три скрытых нейрона, затем дождь и солнце</title>
+                                    <desc id="nn-desc">Шаг 1 показывает вход 0.5 и 0.8. Дальше скрытый слой, ReLU, выходной слой и softmax.</desc>
+                                    <text class="nn-head" x="168" y="22" text-anchor="middle">вход</text>
+                                    <text class="nn-head" x="360" y="22" text-anchor="middle">скрытый слой</text>
+                                    <text class="nn-head" x="552" y="22" text-anchor="middle">выход</text>
+                                    <g class="nn-e1" fill="none">
+                                        <line x1="168" y1="118" x2="360" y2="96"/>
+                                        <line x1="168" y1="118" x2="360" y2="186"/>
+                                        <line x1="168" y1="118" x2="360" y2="276"/>
+                                        <line x1="168" y1="228" x2="360" y2="96"/>
+                                        <line x1="168" y1="228" x2="360" y2="186"/>
+                                        <line x1="168" y1="228" x2="360" y2="276"/>
+                                    </g>
+                                    <g class="nn-e2" fill="none">
+                                        <line x1="360" y1="96" x2="552" y2="118"/>
+                                        <line class="from-h2" x1="360" y1="186" x2="552" y2="118"/>
+                                        <line x1="360" y1="276" x2="552" y2="118"/>
+                                        <line x1="360" y1="96" x2="552" y2="228"/>
+                                        <line class="from-h2" x1="360" y1="186" x2="552" y2="228"/>
+                                        <line x1="360" y1="276" x2="552" y2="228"/>
+                                    </g>
+                                    <g class="node on" data-k="t">
+                                        <text class="nn-name" x="126" y="122" text-anchor="end">температура</text>
+                                        <circle cx="168" cy="118" r="30"/>
+                                        <text class="nn-val" data-val="t" x="168" y="118" text-anchor="middle" dominant-baseline="middle">0.5</text>
+                                    </g>
+                                    <g class="node on" data-k="hum">
+                                        <text class="nn-name" x="126" y="232" text-anchor="end">влажность</text>
+                                        <circle cx="168" cy="228" r="30"/>
+                                        <text class="nn-val" data-val="hum" x="168" y="228" text-anchor="middle" dominant-baseline="middle">0.8</text>
+                                    </g>
+                                    <g class="node" data-k="h1">
+                                        <text class="nn-name" x="360" y="56" text-anchor="middle">h₁</text>
+                                        <circle cx="360" cy="96" r="30"/>
+                                        <text class="nn-val" data-val="h1" x="360" y="96" text-anchor="middle" dominant-baseline="middle">·</text>
+                                    </g>
+                                    <g class="node" data-k="h2">
+                                        <text class="nn-name" x="360" y="146" text-anchor="middle">h₂</text>
+                                        <circle cx="360" cy="186" r="30"/>
+                                        <text class="nn-val" data-val="h2" x="360" y="186" text-anchor="middle" dominant-baseline="middle">·</text>
+                                    </g>
+                                    <g class="node" data-k="h3">
+                                        <text class="nn-name" x="360" y="236" text-anchor="middle">h₃</text>
+                                        <circle cx="360" cy="276" r="30"/>
+                                        <text class="nn-val" data-val="h3" x="360" y="276" text-anchor="middle" dominant-baseline="middle">·</text>
+                                    </g>
+                                    <g class="node" data-k="rain">
+                                        <circle cx="552" cy="118" r="30"/>
+                                        <text class="nn-val" data-val="rain" x="552" y="118" text-anchor="middle" dominant-baseline="middle">·</text>
+                                        <text class="nn-name" x="594" y="122" text-anchor="start">дождь</text>
+                                    </g>
+                                    <g class="node" data-k="sun">
+                                        <circle cx="552" cy="228" r="30"/>
+                                        <text class="nn-val" data-val="sun" x="552" y="228" text-anchor="middle" dominant-baseline="middle">·</text>
+                                        <text class="nn-name" x="594" y="232" text-anchor="start">солнце</text>
+                                    </g>
+                                </svg>
+                                <svg class="nn-stack" viewBox="0 0 360 500" aria-hidden="true" font-family="Source Sans 3, Segoe UI, sans-serif">
+                                    <g class="nn-e1" fill="none">
+                                        <line x1="100" y1="78" x2="50" y2="230"/>
+                                        <line x1="100" y1="78" x2="180" y2="230"/>
+                                        <line x1="100" y1="78" x2="310" y2="230"/>
+                                        <line x1="260" y1="78" x2="50" y2="230"/>
+                                        <line x1="260" y1="78" x2="180" y2="230"/>
+                                        <line x1="260" y1="78" x2="310" y2="230"/>
+                                    </g>
+                                    <g class="nn-e2" fill="none">
+                                        <line x1="50" y1="230" x2="100" y2="390"/>
+                                        <line class="from-h2" x1="180" y1="230" x2="100" y2="390"/>
+                                        <line x1="310" y1="230" x2="100" y2="390"/>
+                                        <line x1="50" y1="230" x2="260" y2="390"/>
+                                        <line class="from-h2" x1="180" y1="230" x2="260" y2="390"/>
+                                        <line x1="310" y1="230" x2="260" y2="390"/>
+                                    </g>
+                                    <g class="node on" data-k="t">
+                                        <text class="nn-name" x="100" y="28" text-anchor="middle">температура</text>
+                                        <circle cx="100" cy="78" r="28"/>
+                                        <text class="nn-val" data-val="t" x="100" y="78" text-anchor="middle" dominant-baseline="middle">0.5</text>
+                                    </g>
+                                    <g class="node on" data-k="hum">
+                                        <text class="nn-name" x="260" y="28" text-anchor="middle">влажность</text>
+                                        <circle cx="260" cy="78" r="28"/>
+                                        <text class="nn-val" data-val="hum" x="260" y="78" text-anchor="middle" dominant-baseline="middle">0.8</text>
+                                    </g>
+                                    <text class="nn-head" x="180" y="168" text-anchor="middle">скрытый слой</text>
+                                    <g class="node" data-k="h1">
+                                        <text class="nn-name" x="50" y="192" text-anchor="middle">h₁</text>
+                                        <circle cx="50" cy="230" r="28"/>
+                                        <text class="nn-val" data-val="h1" x="50" y="230" text-anchor="middle" dominant-baseline="middle">·</text>
+                                    </g>
+                                    <g class="node" data-k="h2">
+                                        <text class="nn-name" x="180" y="192" text-anchor="middle">h₂</text>
+                                        <circle cx="180" cy="230" r="28"/>
+                                        <text class="nn-val" data-val="h2" x="180" y="230" text-anchor="middle" dominant-baseline="middle">·</text>
+                                    </g>
+                                    <g class="node" data-k="h3">
+                                        <text class="nn-name" x="310" y="192" text-anchor="middle">h₃</text>
+                                        <circle cx="310" cy="230" r="28"/>
+                                        <text class="nn-val" data-val="h3" x="310" y="230" text-anchor="middle" dominant-baseline="middle">·</text>
+                                    </g>
+                                    <text class="nn-head" x="180" y="330" text-anchor="middle">выход</text>
+                                    <g class="node" data-k="rain">
+                                        <circle cx="100" cy="390" r="28"/>
+                                        <text class="nn-val" data-val="rain" x="100" y="390" text-anchor="middle" dominant-baseline="middle">·</text>
+                                        <text class="nn-name" x="100" y="440" text-anchor="middle">дождь</text>
+                                    </g>
+                                    <g class="node" data-k="sun">
+                                        <circle cx="260" cy="390" r="28"/>
+                                        <text class="nn-val" data-val="sun" x="260" y="390" text-anchor="middle" dominant-baseline="middle">·</text>
+                                        <text class="nn-name" x="260" y="440" text-anchor="middle">солнце</text>
+                                    </g>
+                                </svg>
+                            </div>
+                            <p class="walk-note" id="nn-note" aria-live="polite">День 1. Температуру поделили на 30, влажность на 100. В сеть входит x = (0.5, 0.8).</p>
+                            <noscript><p>Без скриптов кнопки не листают шаги. Ниже тот же проход записан формулами: скрытый слой даёт 0.29, −0.06, 0.27, ReLU обнуляет середину, softmax ставит дождю около 56%.</p></noscript>
+                        </div>
+                        <p><strong>Прямой проход (день 1, дождь):</strong></p>
+                        <p class="formula">
+                            x = (0.5, 0.8)<br>
+                            z₁ = x · W₁ + b₁<br>
+                            z₁ = (0.5, 0.8) · [[0.1, 0.2, −0.1], [0.3, −0.2, 0.4]] + [0, 0, 0]<br>
+                            z₁ = [(0.5·0.1 + 0.8·0.3), (0.5·0.2 + 0.8·(−0.2)), (0.5·(−0.1) + 0.8·0.4)]<br>
+                            z₁ = [0.29, −0.06, 0.27]
+                        </p>
+                        <p>Активация ReLU (отрицательное в ноль, положительное не трогает):</p>
+                        <p class="formula">
+                            h = ReLU(z₁) = [0.29, 0, 0.27]
+                        </p>
+                        <p>Второй слой:</p>
+                        <p class="formula">
+                            z₂ = h · W₂ + b₂<br>
+                            z₂ = [0.29, 0, 0.27] · [[0.5, −0.3], [−0.2, 0.4], [0.3, 0.2]] + [0, 0]<br>
+                            z₂ = [(0.29·0.5 + 0·(−0.2) + 0.27·0.3), (0.29·(−0.3) + 0·0.4 + 0.27·0.2)]<br>
+                            z₂ = [0.226, −0.033]
+                        </p>
+                        <p>Softmax превращает в шансы (e^x делит на сумму):</p>
+                        <p class="formula">
+                            e^0.226 ≈ 1.25, e^(−0.033) ≈ 0.97, сумма 2.22<br>
+                            p(дождь) = 1.25 / 2.22 ≈ 56%<br>
+                            p(солнце) = 0.97 / 2.22 ≈ 44%
+                        </p>
+                        <p>Правильный ответ: дождь. Модель дала 56% — уже лучше случайного, но loss ещё есть. Backpropagation разнесёт ошибку назад, градиентный спуск подкрутит веса.</p>
+                        <p class="fine">После тысяч таких шагов нейросеть научится: высокая влажность → дождь, низкая + высокая температура → солнце.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Функции активации</h4>
+                    <p>Активация — изгиб между слоями. Без неё вся стопка матричных умножений остаётся одной прямой, и глубина сети теряет смысл. ReLU, sigmoid и tanh — три главные функции.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p><strong>ReLU</strong> (Rectified Linear Unit): если число отрицательное, пишет ноль, иначе оставляет как есть. Самая популярная активация в современных сетях, потому что считается быстро и градиент не затухает.</p>
+                        <p class="formula">ReLU(x) = max(0, x)</p>
+                        <p class="formula">ReLU(−2.5) = 0, ReLU(3.7) = 3.7</p>
+                        <p><strong>Sigmoid (σ)</strong>: сжимает любое число к отрезку от 0 до 1. Раньше использовалась везде, сейчас чаще в воротах (LSTM) или на последнем слое бинарной классификации.</p>
+                        <p class="formula">σ(x) = 1 / (1 + e^(−x))</p>
+                        <p class="formula">σ(0) = 0.5, σ(5) ≈ 0.993, σ(−5) ≈ 0.007</p>
+                        <p><strong>tanh</strong>: похожа на sigmoid, но сжимает к отрезку от −1 до +1. Используется в RNN и LSTM. Нулевой вход даёт ноль, что удобно для памяти.</p>
+                        <p class="formula">tanh(x) = (e^x − e^(−x)) / (e^x + e^(−x))</p>
+                        <p class="formula">tanh(0) = 0, tanh(2) ≈ 0.964, tanh(−2) ≈ −0.964</p>
+                        <p class="fine">В трансформерах используют GELU и SwiGLU — более плавные изгибы, чем ReLU, но смысл тот же: добавить нелинейность между слоями.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Overfitting / Dropout</h4>
+                    <p>Переобучение — когда модель заучивает тренировочные примеры наизусть, но на новых данных ошибается. Dropout борется с этим: на каждом шаге обучения случайно выключает часть нейронов. Модель вынуждена учиться на разных подсетях и не полагаться на один путь.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Есть 100 примеров погоды. Модель заучила: «день 7 был солнечным, день 23 — дождливым». На тесте приходит день 101, модель растеряна. Это переобучение.</p>
+                        <p>Dropout с вероятностью 0.5 на каждом шаге обучения выключает половину нейронов в скрытом слое. Сеть не может опереться на один нейрон «запомнил день 7». Она вынуждена строить общие правила: влажность → дождь.</p>
+                        <p class="fine">Во время инференса dropout отключают, все нейроны работают. В больших LLM dropout почти не используют: данных так много, что переобучение не успевает случиться.</p>
+                    </div>
+                </div>
             </div>
         </article>
 
@@ -739,7 +995,7 @@
             <div>
                 <p class="tag">Предыстория</p>
                 <h3>Нейросети и NLP</h3>
-                <p>До трансформера текст уже умели превращать в числа и читать по цепочке. Эти три идеи до сих пор лежат в основе LLM.</p>
+                <p>До трансформера текст уже умели превращать в числа и читать по цепочке. Embeddings, рекуррентные сети и attention — ключевые идеи, которые легли в основу современных LLM.</p>
 
                 <div class="topic">
                     <h4>Embeddings</h4>
@@ -1419,6 +1675,73 @@
                         <p>Фраза «чёрный кот». Когда переводчик пишет «black», взгляд держится на «чёрный». Когда пишет «cat», взгляд переезжает на «кот».</p>
                     </div>
                 </div>
+
+                <div class="topic">
+                    <h4>GRU</h4>
+                    <p>GRU (Gated Recurrent Unit) — упрощённая версия LSTM. Вместо трёх ворот только два: reset и update. Память одна, а не две раздельные. GRU считается быстрее LSTM, но на длинных зависимостях LSTM обычно точнее. До трансформеров GRU часто использовали там, где скорость важнее максимальной точности.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Фраза «кот спит на диване, он устал». LSTM держит отдельную длинную память c и рабочую h. GRU обходится одной h, но тоже помнит связь «он» → «кот» через десяток слов.</p>
+                        <p class="fine">Формула GRU короче, чем у LSTM: два вентиля вместо трёх, одна память вместо двух. В коде это меньше параметров и быстрее.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>Классические методы NLP</h4>
+                    <p>До нейросетей текст превращали в числа статистикой. Bag of Words подсчитывает, сколько раз каждое слово встретилось, порядок игнорирует. TF-IDF взвешивает слова: частое во всех документах ценится меньше, редкое и важное — больше. N-граммы смотрят не на одно слово, а на соседние пары или тройки.</p>
+                    <div class="example">
+                        <div class="label">Пример. Bag of Words</div>
+                        <p>Два текста:</p>
+                        <ul class="notebook">
+                            <li>Документ 1: «кот спит на диване»</li>
+                            <li>Документ 2: «кот играет с мячом»</li>
+                        </ul>
+                        <p>Словарь: кот, спит, на, диване, играет, с, мячом. Каждый документ — вектор подсчётов:</p>
+                        <div class="sheet fit">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Документ</th>
+                                        <th scope="col">кот</th>
+                                        <th scope="col">спит</th>
+                                        <th scope="col">на</th>
+                                        <th scope="col">диване</th>
+                                        <th scope="col">играет</th>
+                                        <th scope="col">с</th>
+                                        <th scope="col">мячом</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+                                    <tr><td>2</td><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p>Порядок слов потерян. «Спит кот» и «кот спит» дают одинаковый вектор. Зато считать быстро, и для простой классификации это работало.</p>
+                    </div>
+                    <div class="example">
+                        <div class="label">Пример. TF-IDF</div>
+                        <p>TF (term frequency) — сколько раз слово встретилось в документе. IDF (inverse document frequency) — насколько редко слово во всей коллекции.</p>
+                        <p>Два документа: «кот спит» и «кот играет». Слово «кот» есть в обоих — IDF низкий. Слова «спит» и «играет» только в своём документе — IDF высокий. TF-IDF выделяет слова, которые характерны для конкретного текста.</p>
+                        <p class="fine">Эти методы не учат веса, в них нет градиентного спуска. Они считают статистику один раз и используют. В современных LLM их заменили эмбеддинги.</p>
+                    </div>
+                </div>
+
+                <div class="topic">
+                    <h4>CNN для текста</h4>
+                    <p>Свёрточные сети (CNN) известны по картинкам, но их применяли и к тексту. Вместо квадратного окна на картинке — скользящее окно из нескольких слов подряд. Фильтр смотрит на биграмму, триграмму или пятёрку слов и ловит локальные паттерны. После свёрток идёт pooling — выбирается максимум. Так сеть находит важные куски фразы, не читая всё последовательно.</p>
+                    <div class="example">
+                        <div class="label">Пример</div>
+                        <p>Фраза «кот спит на диване мягко». Фильтр размера 3 скользит по эмбеддингам:</p>
+                        <ul class="notebook">
+                            <li>«кот спит на»</li>
+                            <li>«спит на диване»</li>
+                            <li>«на диване мягко»</li>
+                        </ul>
+                        <p>Каждый кусок превращается в одно число. Max pooling берёт самое сильное срабатывание. Это даёт короткий вектор признаков для всей фразы.</p>
+                        <p class="fine">До трансформеров CNN для текста использовали в классификации: определить тональность отзыва, тему новости. Сейчас трансформеры вытеснили CNN из NLP почти полностью.</p>
+                    </div>
+                </div>
             </div>
         </article>
 
@@ -1905,6 +2228,96 @@
     }
 
     renderChoices();
+})();
+</script>
+<script>
+(function () {
+    var root = document.getElementById("nn-walk");
+    if (!root) return;
+    var steps = [
+        {
+            title: "Вход",
+            note: "День 1. Температуру поделили на 30, влажность на 100. В сеть входит x = (0.5, 0.8).",
+            hot: ["t", "hum"],
+            dead: [],
+            win: [],
+            edges: null,
+            values: { t: "0.5", hum: "0.8", h1: "·", h2: "·", h3: "·", rain: "·", sun: "·" }
+        },
+        {
+            title: "Скрытый слой",
+            note: "Каждый скрытый нейрон — сумма входа, умноженного на свой столбец W₁. Получилось z₁ = (0.29, −0.06, 0.27). Сдвига нет, b₁ = 0.",
+            hot: ["h1", "h2", "h3"],
+            dead: [],
+            win: [],
+            edges: ".nn-e1 line",
+            values: { t: "0.5", hum: "0.8", h1: "0.29", h2: "−0.06", h3: "0.27", rain: "·", sun: "·" }
+        },
+        {
+            title: "ReLU",
+            note: "ReLU оставляет положительные числа и ставит ноль вместо отрицательных. Средний нейрон гаснет: h = (0.29, 0, 0.27). Пунктир — его связи дальше ничего не везут.",
+            hot: ["h1", "h3"],
+            dead: ["h2"],
+            win: [],
+            edges: null,
+            values: { t: "0.5", hum: "0.8", h1: "0.29", h2: "0", h3: "0.27", rain: "·", sun: "·" }
+        },
+        {
+            title: "Выходной слой",
+            note: "Живые нейроны умножаются на W₂. Выключенный даёт ноль, поэтому его вес не влияет. z₂ = (0.226, −0.033).",
+            hot: ["rain", "sun"],
+            dead: ["h2"],
+            win: [],
+            edges: ".nn-e2 line:not(.from-h2)",
+            values: { t: "0.5", hum: "0.8", h1: "0.29", h2: "0", h3: "0.27", rain: "0.226", sun: "−0.033" }
+        },
+        {
+            title: "Softmax",
+            note: "Softmax превращает два сырых числа в доли, которые в сумме дают 100%. Дождь получает около 56%, солнце — 44%. В тетради этого дня записан дождь.",
+            hot: ["sun"],
+            dead: ["h2"],
+            win: ["rain"],
+            edges: null,
+            values: { t: "0.5", hum: "0.8", h1: "0.29", h2: "0", h3: "0.27", rain: "56%", sun: "44%" }
+        }
+    ];
+    var step = 0;
+    var prev = document.getElementById("nn-prev");
+    var next = document.getElementById("nn-next");
+    var count = document.getElementById("nn-count");
+    var note = document.getElementById("nn-note");
+
+    function show(i) {
+        step = i;
+        var s = steps[i];
+        Object.keys(s.values).forEach(function (key) {
+            root.querySelectorAll('[data-val="' + key + '"]').forEach(function (el) {
+                el.textContent = s.values[key];
+            });
+        });
+        root.querySelectorAll("g.node").forEach(function (g) {
+            g.classList.remove("on", "dead", "win");
+            var key = g.getAttribute("data-k");
+            if (s.dead.indexOf(key) !== -1) g.classList.add("dead");
+            else if (s.win.indexOf(key) !== -1) g.classList.add("win");
+            else if (s.hot.indexOf(key) !== -1) g.classList.add("on");
+        });
+        root.querySelectorAll("line").forEach(function (line) {
+            line.classList.remove("on");
+            if (line.classList.contains("from-h2")) line.classList.toggle("mute", i >= 2);
+        });
+        if (s.edges) {
+            root.querySelectorAll(s.edges).forEach(function (line) { line.classList.add("on"); });
+        }
+        count.textContent = "Шаг " + (i + 1) + " из " + steps.length + ". " + s.title;
+        note.textContent = s.note;
+        prev.disabled = i === 0;
+        next.disabled = i === steps.length - 1;
+    }
+
+    prev.addEventListener("click", function () { if (step > 0) show(step - 1); });
+    next.addEventListener("click", function () { if (step < steps.length - 1) show(step + 1); });
+    show(0);
 })();
 </script>
 </body>
