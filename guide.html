@@ -210,12 +210,14 @@
         .sheet td:first-child, .sheet th:first-child { text-align: left; }
         .sheet tr.known td, .sheet tr.moved td { background: #fff6ea; }
         .sheet .txt { text-align: left; white-space: normal; }
+        .sheet td.txt:first-child, .sheet th.txt:first-child { white-space: nowrap; }
         .sheet.fit {
             width: max-content;
             max-width: 100%;
         }
         .sheet.fit table { width: auto; }
         .sheet.fit th, .sheet.fit td { padding: 0.08rem 0.55rem; }
+        .sheet.dense th, .sheet.dense td { padding: 0.08rem 0.32rem; }
         .sheet th.moved, .sheet td.moved { background: #fff6ea; }
         .sheet.cross th, .sheet.cross td { text-align: center; padding: 0.08rem 0.4rem; }
         .sheet.cross tbody th {
@@ -783,20 +785,42 @@
                     <div class="example">
                         <div class="label">Пример. Классификация: дождь или солнце</div>
                         <p>Вход: два числа (температура и влажность). Выход: два числа (шанс дождя и шанс солнца). Сеть из двух слоёв. Между ними функция активации, в конце softmax.</p>
-                        <p><strong>Архитектура:</strong></p>
-                        <ul class="notebook">
-                            <li>Вход x: 2 числа</li>
-                            <li>Скрытый слой h: 3 нейрона (веса W₁ размера 2×3, сдвиг b₁)</li>
-                            <li>Активация: ReLU</li>
-                            <li>Выходной слой y: 2 нейрона (веса W₂ размера 3×2, сдвиг b₂)</li>
-                            <li>Softmax: превращает в шансы</li>
-                        </ul>
-                        <p><strong>Пример данных.</strong> День 1: температура 15°C, влажность 80%, был дождь. День 2: температура 28°C, влажность 30%, было солнце.</p>
-                        <p>Нормализуем числа. Температуру делим на 30, влажность на 100:</p>
-                        <ul class="notebook">
-                            <li>День 1: x = (0.5, 0.8), правильный ответ: дождь</li>
-                            <li>День 2: x = (0.93, 0.3), правильный ответ: солнце</li>
-                        </ul>
+                        <div class="sheet fit">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="txt" scope="col">Слой</th>
+                                        <th class="txt" scope="col">Размер</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="txt">Вход x</td><td class="txt">2 числа</td></tr>
+                                    <tr><td class="txt">Скрытый h</td><td class="txt">3 нейрона, W₁ 2×3, b₁</td></tr>
+                                    <tr><td class="txt">Активация</td><td class="txt">ReLU: отрицательное число становится нулём, положительное остаётся</td></tr>
+                                    <tr><td class="txt">Выход y</td><td class="txt">2 нейрона, W₂ 3×2, b₂</td></tr>
+                                    <tr><td class="txt">Softmax</td><td class="txt">шансы</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p>Два дня. Температуру делим на 30, влажность на 100 — так получается вход x.</p>
+                        <div class="sheet fit dense">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">День</th>
+                                        <th scope="col">Темп.</th>
+                                        <th scope="col">Влаж.</th>
+                                        <th class="txt" scope="col">Ответ</th>
+                                        <th scope="col">x</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="moved"><td>1</td><td>15°C</td><td>80%</td><td class="txt">дождь</td><td>(0.5, 0.8)</td></tr>
+                                    <tr><td>2</td><td>28°C</td><td>30%</td><td class="txt">солнце</td><td>(0.93, 0.3)</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="fine">Подсвечен день 1: его сеть разбирает по шагам ниже.</p>
                         <p>Инициализация весов (случайные малые числа):</p>
                         <p class="formula">
                             W₁ = [[0.1, 0.2, −0.1], [0.3, −0.2, 0.4]]<br>
