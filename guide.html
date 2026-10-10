@@ -426,6 +426,19 @@
             gap: 0.3rem 0.4rem;
             margin: 0.4rem 0;
         }
+        .weights {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.35rem 0.8rem;
+        }
+        .weights .piece {
+            display: inline-flex;
+            align-items: center;
+            font-family: var(--serif);
+            font-size: 1.05rem;
+            white-space: nowrap;
+        }
         .mat {
             display: inline-grid;
             position: relative;
@@ -862,13 +875,6 @@
                             </table>
                         </div>
                         <p class="fine">Подсвечен день 1: его сеть разбирает по шагам ниже.</p>
-                        <p>Инициализация весов (случайные малые числа):</p>
-                        <p class="formula">
-                            <span class="eq">W₁ = <span class="mat cols-3"><span>0.1</span><span>0.2</span><span>−0.1</span><span>0.3</span><span>−0.2</span><span>0.4</span></span></span>
-                            <span class="eq">b₁ = <span class="mat cols-3"><span>0</span><span>0</span><span>0</span></span></span>
-                            <span class="eq">W₂ = <span class="mat cols-2"><span>0.5</span><span>−0.3</span><span>−0.2</span><span>0.4</span><span>0.3</span><span>0.2</span></span></span>
-                            <span class="eq">b₂ = <span class="mat cols-2"><span>0</span><span>0</span></span></span>
-                        </p>
                         <p>Тот же день 1 можно пройти по сети кнопками. Формулы ниже — та же арифметика по шагам.</p>
                         <div class="walk" id="nn-walk">
                             <div class="walk-bar">
@@ -994,7 +1000,7 @@
                             <p class="walk-note" id="nn-note" aria-live="polite">День 1. Температуру поделили на 30, влажность на 100. В сеть входит x = (0.5, 0.8).</p>
                             <noscript><p>Без скриптов кнопки не листают шаги. Ниже тот же проход записан формулами: скрытый слой даёт 0.29, −0.06, 0.27, ReLU обнуляет середину, softmax ставит дождю около 56%.</p></noscript>
                         </div>
-                        <p><strong>Прямой проход (день 1, дождь):</strong></p>
+                        <p class="weights"><strong>Прямой проход (день 1, дождь):</strong> <span>инициализация весов (случайные малые числа):</span> <span class="piece">W₁ = <span class="mat cols-3"><span>0.1</span><span>0.2</span><span>−0.1</span><span>0.3</span><span>−0.2</span><span>0.4</span></span></span> <span class="piece">b₁ = <span class="mat cols-3"><span>0</span><span>0</span><span>0</span></span></span> <span class="piece">W₂ = <span class="mat cols-2"><span>0.5</span><span>−0.3</span><span>−0.2</span><span>0.4</span><span>0.3</span><span>0.2</span></span></span> <span class="piece">b₂ = <span class="mat cols-2"><span>0</span><span>0</span></span></span></p>
                         <p class="formula">
                             x = (0.5, 0.8)<br>
                             z₁ = x · W₁ + b₁<br>
