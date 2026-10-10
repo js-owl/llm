@@ -839,23 +839,6 @@
                     <div class="example">
                         <div class="label">Пример. Классификация: дождь или солнце</div>
                         <p>Вход: два числа (температура и влажность). Выход: два числа (шанс дождя и шанс солнца). Сеть из двух слоёв. Между ними функция активации, в конце softmax.</p>
-                        <div class="sheet fit">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th class="txt" scope="col">Слой</th>
-                                        <th class="txt" scope="col">Размер</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td class="txt">Вход x</td><td class="txt">2 числа</td></tr>
-                                    <tr><td class="txt">Скрытый h</td><td class="txt">3 нейрона, W₁ 2×3, b₁</td></tr>
-                                    <tr><td class="txt">Активация</td><td class="txt">ReLU: отрицательное число становится нулём, положительное остаётся</td></tr>
-                                    <tr><td class="txt">Выход y</td><td class="txt">2 нейрона, W₂ 3×2, b₂</td></tr>
-                                    <tr><td class="txt">Softmax</td><td class="txt">шансы</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
                         <p>Два дня. Температуру делим на 30, влажность на 100 — так получается вход x.</p>
                         <div class="sheet fit dense">
                             <table>
