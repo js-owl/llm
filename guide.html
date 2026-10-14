@@ -486,11 +486,17 @@
             min-width: 44rem;
             height: auto;
         }
-        .chart figcaption {
+        .chart figcaption,
+        .walk-cap {
             margin: 0.15rem 0.75rem 0;
             color: var(--soft);
             font-size: 0.95rem;
         }
+        .fig-num {
+            color: var(--terra);
+            font-weight: 600;
+        }
+        .walk-cap { margin: 0.45rem 0 0; }
         .walk {
             margin-top: 0.85rem;
             background: #fff;
@@ -727,7 +733,7 @@
                                     <text x="140" y="101">попытка 2</text>
                                 </g>
                             </svg>
-                            <figcaption>Точки — три проданных дома. Серая линия лежит на нуле. После двух подкруток прямая поднимается к точкам.</figcaption>
+                            <figcaption><span class="fig-num">Схема 1.</span> Точки — три проданных дома. Серая линия лежит на нуле. После двух подкруток прямая поднимается к точкам.</figcaption>
                         </figure>
                         <p>Так и крутят дальше. На этих трёх чеках прямая приходит к w = 2 и b = 0: 2×50 = 100, 2×80 = 160, 2×120 = 240. Ручки фиксируют. Градиент больше не считают.</p>
                         <p><strong>Оценка нового дома.</strong> На сайт вводят 70 м². Этой продажи в архиве нет, настоящей цены нет. Берут зафиксированные ручки:</p>
@@ -962,6 +968,7 @@
                                     </g>
                                 </svg>
                             </div>
+                            <p class="walk-cap"><span class="fig-num">Схема 2.</span> Кружки — нейроны. Слева температура и влажность, в середине скрытый слой, справа дождь и солнце.</p>
                             <p class="walk-note" id="nn-note" aria-live="polite">День 1. Температуру поделили на 30, влажность на 100. В сеть входит x = (0.5, 0.8).</p>
                             <noscript><p>Без скриптов кнопки не листают шаги. Ниже тот же проход записан формулами: скрытый слой даёт 0.29, −0.06, 0.27, ReLU обнуляет середину, softmax ставит дождю около 56%.</p></noscript>
                         </div>
@@ -1314,7 +1321,7 @@
                                         <text x="232" y="198" text-anchor="middle">Собака</text>
                                     </g>
                                 </svg>
-                                <figcaption>До. Кот (2.0, 8.0) и Собака (8.0, 2.0) далеко друг от друга.</figcaption>
+                                <figcaption><span class="fig-num">Схема 3.</span> До. Кот (2.0, 8.0) и Собака (8.0, 2.0) далеко друг от друга.</figcaption>
                             </figure>
                             <figure class="chart">
                                 <svg viewBox="0 0 300 292" role="img" aria-labelledby="emb-after-title emb-after-desc" font-family="Source Sans 3, Segoe UI, sans-serif">
@@ -1381,7 +1388,7 @@
                                         <text x="200" y="186" text-anchor="end">Собака</text>
                                     </g>
                                 </svg>
-                                <figcaption>После. Кот (2.6, 7.4) и Собака (7.4, 2.6) шагнули навстречу. Пустой кружок — место до шага.</figcaption>
+                                <figcaption><span class="fig-num">Схема 4.</span> После. Кот (2.6, 7.4) и Собака (7.4, 2.6) шагнули навстречу. Пустой кружок — место до шага.</figcaption>
                             </figure>
                         </div>
                     </div>
