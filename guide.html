@@ -1073,7 +1073,132 @@
                         </p>
                         <p class="formula">b₁: 0 − 0.1·(−0.352) = 0.0352 ≈ 0.035, 0 − 0.1·0 = 0, 0 − 0.1·(−0.044) = 0.0044 ≈ 0.004</p>
                         <p class="weights"><strong>Ручки после шага:</strong> <span class="piece">W₁ = <span class="mat cols-3"><span>0.118</span><span>0.2</span><span>−0.098</span><span>0.328</span><span>−0.2</span><span>0.404</span></span></span> <span class="piece">b₁ = <span class="mat cols-3"><span>0.035</span><span>0</span><span>0.004</span></span></span> <span class="piece">W₂ = <span class="mat cols-2"><span>0.513</span><span>−0.313</span><span>−0.2</span><span>0.4</span><span>0.312</span><span>0.188</span></span></span> <span class="piece">b₂ = <span class="mat cols-2"><span>0.044</span><span>−0.044</span></span></span></p>
-                        <p><strong>Тот же день ещё раз.</strong> Вход прежний, x = (0.5, 0.8). Считаем прямой проход новыми ручками.</p>
+                        <p><strong>Тот же день ещё раз.</strong> Вход прежний, x = (0.5, 0.8). Считаем прямой проход новыми ручками. Кнопки листают его по слоям, формулы ниже — та же арифметика.</p>
+                        <div class="walk" id="bp-walk">
+                            <div class="walk-bar">
+                                <button type="button" id="bp-prev">Назад</button>
+                                <p id="bp-count">Шаг 1 из 5. Вход</p>
+                                <button type="button" id="bp-next">Дальше</button>
+                            </div>
+                            <div class="walk-stage">
+                                <svg class="nn-wide" viewBox="0 0 720 336" role="img" aria-labelledby="bp-title bp-desc" font-family="Source Sans 3, Segoe UI, sans-serif">
+                                    <title id="bp-title">Прямой проход после шага: температура и влажность, затем три скрытых нейрона, затем дождь и солнце</title>
+                                    <desc id="bp-desc">Шаг 1 показывает вход 0.5 и 0.8. Дальше новый скрытый слой, ReLU, выходной слой и softmax: дождь около 60%.</desc>
+                                    <text class="nn-head" x="168" y="22" text-anchor="middle">вход</text>
+                                    <text class="nn-head" x="360" y="22" text-anchor="middle">скрытый слой</text>
+                                    <text class="nn-head" x="552" y="22" text-anchor="middle">выход</text>
+                                    <g class="nn-e1" fill="none">
+                                        <line x1="168" y1="118" x2="360" y2="96"/>
+                                        <line x1="168" y1="118" x2="360" y2="186"/>
+                                        <line x1="168" y1="118" x2="360" y2="276"/>
+                                        <line x1="168" y1="228" x2="360" y2="96"/>
+                                        <line x1="168" y1="228" x2="360" y2="186"/>
+                                        <line x1="168" y1="228" x2="360" y2="276"/>
+                                    </g>
+                                    <g class="nn-e2" fill="none">
+                                        <line x1="360" y1="96" x2="552" y2="118"/>
+                                        <line class="from-h2" x1="360" y1="186" x2="552" y2="118"/>
+                                        <line x1="360" y1="276" x2="552" y2="118"/>
+                                        <line x1="360" y1="96" x2="552" y2="228"/>
+                                        <line class="from-h2" x1="360" y1="186" x2="552" y2="228"/>
+                                        <line x1="360" y1="276" x2="552" y2="228"/>
+                                    </g>
+                                    <g class="node on" data-k="t">
+                                        <text class="nn-name" x="126" y="122" text-anchor="end">температура</text>
+                                        <circle cx="168" cy="118" r="30"/>
+                                        <text class="nn-val" data-val="t" x="168" y="118" text-anchor="middle" dominant-baseline="middle">0.5</text>
+                                    </g>
+                                    <g class="node on" data-k="hum">
+                                        <text class="nn-name" x="126" y="232" text-anchor="end">влажность</text>
+                                        <circle cx="168" cy="228" r="30"/>
+                                        <text class="nn-val" data-val="hum" x="168" y="228" text-anchor="middle" dominant-baseline="middle">0.8</text>
+                                    </g>
+                                    <g class="node" data-k="h1">
+                                        <text class="nn-name" x="360" y="56" text-anchor="middle">h₁</text>
+                                        <circle cx="360" cy="96" r="30"/>
+                                        <text class="nn-val" data-val="h1" x="360" y="96" text-anchor="middle" dominant-baseline="middle">·</text>
+                                    </g>
+                                    <g class="node" data-k="h2">
+                                        <text class="nn-name" x="360" y="146" text-anchor="middle">h₂</text>
+                                        <circle cx="360" cy="186" r="30"/>
+                                        <text class="nn-val" data-val="h2" x="360" y="186" text-anchor="middle" dominant-baseline="middle">·</text>
+                                    </g>
+                                    <g class="node" data-k="h3">
+                                        <text class="nn-name" x="360" y="236" text-anchor="middle">h₃</text>
+                                        <circle cx="360" cy="276" r="30"/>
+                                        <text class="nn-val" data-val="h3" x="360" y="276" text-anchor="middle" dominant-baseline="middle">·</text>
+                                    </g>
+                                    <g class="node" data-k="rain">
+                                        <circle cx="552" cy="118" r="30"/>
+                                        <text class="nn-val" data-val="rain" x="552" y="118" text-anchor="middle" dominant-baseline="middle">·</text>
+                                        <text class="nn-name" x="594" y="122" text-anchor="start">дождь</text>
+                                    </g>
+                                    <g class="node" data-k="sun">
+                                        <circle cx="552" cy="228" r="30"/>
+                                        <text class="nn-val" data-val="sun" x="552" y="228" text-anchor="middle" dominant-baseline="middle">·</text>
+                                        <text class="nn-name" x="594" y="232" text-anchor="start">солнце</text>
+                                    </g>
+                                </svg>
+                                <svg class="nn-stack" viewBox="0 0 360 500" aria-hidden="true" font-family="Source Sans 3, Segoe UI, sans-serif">
+                                    <g class="nn-e1" fill="none">
+                                        <line x1="100" y1="78" x2="50" y2="230"/>
+                                        <line x1="100" y1="78" x2="180" y2="230"/>
+                                        <line x1="100" y1="78" x2="310" y2="230"/>
+                                        <line x1="260" y1="78" x2="50" y2="230"/>
+                                        <line x1="260" y1="78" x2="180" y2="230"/>
+                                        <line x1="260" y1="78" x2="310" y2="230"/>
+                                    </g>
+                                    <g class="nn-e2" fill="none">
+                                        <line x1="50" y1="230" x2="100" y2="390"/>
+                                        <line class="from-h2" x1="180" y1="230" x2="100" y2="390"/>
+                                        <line x1="310" y1="230" x2="100" y2="390"/>
+                                        <line x1="50" y1="230" x2="260" y2="390"/>
+                                        <line class="from-h2" x1="180" y1="230" x2="260" y2="390"/>
+                                        <line x1="310" y1="230" x2="260" y2="390"/>
+                                    </g>
+                                    <g class="node on" data-k="t">
+                                        <text class="nn-name" x="100" y="28" text-anchor="middle">температура</text>
+                                        <circle cx="100" cy="78" r="28"/>
+                                        <text class="nn-val" data-val="t" x="100" y="78" text-anchor="middle" dominant-baseline="middle">0.5</text>
+                                    </g>
+                                    <g class="node on" data-k="hum">
+                                        <text class="nn-name" x="260" y="28" text-anchor="middle">влажность</text>
+                                        <circle cx="260" cy="78" r="28"/>
+                                        <text class="nn-val" data-val="hum" x="260" y="78" text-anchor="middle" dominant-baseline="middle">0.8</text>
+                                    </g>
+                                    <text class="nn-head" x="180" y="168" text-anchor="middle">скрытый слой</text>
+                                    <g class="node" data-k="h1">
+                                        <text class="nn-name" x="50" y="192" text-anchor="middle">h₁</text>
+                                        <circle cx="50" cy="230" r="28"/>
+                                        <text class="nn-val" data-val="h1" x="50" y="230" text-anchor="middle" dominant-baseline="middle">·</text>
+                                    </g>
+                                    <g class="node" data-k="h2">
+                                        <text class="nn-name" x="180" y="192" text-anchor="middle">h₂</text>
+                                        <circle cx="180" cy="230" r="28"/>
+                                        <text class="nn-val" data-val="h2" x="180" y="230" text-anchor="middle" dominant-baseline="middle">·</text>
+                                    </g>
+                                    <g class="node" data-k="h3">
+                                        <text class="nn-name" x="310" y="192" text-anchor="middle">h₃</text>
+                                        <circle cx="310" cy="230" r="28"/>
+                                        <text class="nn-val" data-val="h3" x="310" y="230" text-anchor="middle" dominant-baseline="middle">·</text>
+                                    </g>
+                                    <text class="nn-head" x="180" y="330" text-anchor="middle">выход</text>
+                                    <g class="node" data-k="rain">
+                                        <circle cx="100" cy="390" r="28"/>
+                                        <text class="nn-val" data-val="rain" x="100" y="390" text-anchor="middle" dominant-baseline="middle">·</text>
+                                        <text class="nn-name" x="100" y="440" text-anchor="middle">дождь</text>
+                                    </g>
+                                    <g class="node" data-k="sun">
+                                        <circle cx="260" cy="390" r="28"/>
+                                        <text class="nn-val" data-val="sun" x="260" y="390" text-anchor="middle" dominant-baseline="middle">·</text>
+                                        <text class="nn-name" x="260" y="440" text-anchor="middle">солнце</text>
+                                    </g>
+                                </svg>
+                            </div>
+                            <p class="walk-cap"><span class="fig-num">Схема 3.</span> Кружки — те же нейроны. Числа — прямой проход новыми ручками: дождь поднимается к 60%.</p>
+                            <p class="walk-note" id="bp-note" aria-live="polite">Тот же день, уже после шага. Вход прежний: x = (0.5, 0.8). Ручки — те, что вышли из backpropagation.</p>
+                            <noscript><p>Без скриптов кнопки не листают шаги. Ниже тот же проход записан формулами: скрытый слой даёт 0.356, −0.06, 0.278, ReLU обнуляет середину, softmax ставит дождю около 60%.</p></noscript>
+                        </div>
                         <p class="formula">
                             z₁ = (0.5·0.118 + 0.8·0.328 + 0.035, 0.5·0.2 + 0.8·(−0.2), 0.5·(−0.098) + 0.8·0.404 + 0.004)<br>
                             z₁ = (0.3564, −0.06, 0.2782) ≈ (0.356, −0.06, 0.278)<br>
@@ -1321,7 +1446,7 @@
                                         <text x="232" y="198" text-anchor="middle">Собака</text>
                                     </g>
                                 </svg>
-                                <figcaption><span class="fig-num">Схема 3.</span> До. Кот (2.0, 8.0) и Собака (8.0, 2.0) далеко друг от друга.</figcaption>
+                                <figcaption><span class="fig-num">Схема 4.</span> До. Кот (2.0, 8.0) и Собака (8.0, 2.0) далеко друг от друга.</figcaption>
                             </figure>
                             <figure class="chart">
                                 <svg viewBox="0 0 300 292" role="img" aria-labelledby="emb-after-title emb-after-desc" font-family="Source Sans 3, Segoe UI, sans-serif">
@@ -1388,7 +1513,7 @@
                                         <text x="200" y="186" text-anchor="end">Собака</text>
                                     </g>
                                 </svg>
-                                <figcaption><span class="fig-num">Схема 4.</span> После. Кот (2.6, 7.4) и Собака (7.4, 2.6) шагнули навстречу. Пустой кружок — место до шага.</figcaption>
+                                <figcaption><span class="fig-num">Схема 5.</span> После. Кот (2.6, 7.4) и Собака (7.4, 2.6) шагнули навстречу. Пустой кружок — место до шага.</figcaption>
                             </figure>
                         </div>
                     </div>
@@ -2437,6 +2562,96 @@
     var next = document.getElementById("nn-next");
     var count = document.getElementById("nn-count");
     var note = document.getElementById("nn-note");
+
+    function show(i) {
+        step = i;
+        var s = steps[i];
+        Object.keys(s.values).forEach(function (key) {
+            root.querySelectorAll('[data-val="' + key + '"]').forEach(function (el) {
+                el.textContent = s.values[key];
+            });
+        });
+        root.querySelectorAll("g.node").forEach(function (g) {
+            g.classList.remove("on", "dead", "win");
+            var key = g.getAttribute("data-k");
+            if (s.dead.indexOf(key) !== -1) g.classList.add("dead");
+            else if (s.win.indexOf(key) !== -1) g.classList.add("win");
+            else if (s.hot.indexOf(key) !== -1) g.classList.add("on");
+        });
+        root.querySelectorAll("line").forEach(function (line) {
+            line.classList.remove("on");
+            if (line.classList.contains("from-h2")) line.classList.toggle("mute", i >= 2);
+        });
+        if (s.edges) {
+            root.querySelectorAll(s.edges).forEach(function (line) { line.classList.add("on"); });
+        }
+        count.textContent = "Шаг " + (i + 1) + " из " + steps.length + ". " + s.title;
+        note.textContent = s.note;
+        prev.disabled = i === 0;
+        next.disabled = i === steps.length - 1;
+    }
+
+    prev.addEventListener("click", function () { if (step > 0) show(step - 1); });
+    next.addEventListener("click", function () { if (step < steps.length - 1) show(step + 1); });
+    show(0);
+})();
+</script>
+<script>
+(function () {
+    var root = document.getElementById("bp-walk");
+    if (!root) return;
+    var steps = [
+        {
+            title: "Вход",
+            note: "Тот же день, уже после шага. Вход прежний: x = (0.5, 0.8). Ручки — те, что вышли из backpropagation.",
+            hot: ["t", "hum"],
+            dead: [],
+            win: [],
+            edges: null,
+            values: { t: "0.5", hum: "0.8", h1: "·", h2: "·", h3: "·", rain: "·", sun: "·" }
+        },
+        {
+            title: "Скрытый слой",
+            note: "Вход умножается на новый W₁, затем прибавляется b₁. Получилось z₁ = (0.356, −0.06, 0.278).",
+            hot: ["h1", "h2", "h3"],
+            dead: [],
+            win: [],
+            edges: ".nn-e1 line",
+            values: { t: "0.5", hum: "0.8", h1: "0.356", h2: "−0.06", h3: "0.278", rain: "·", sun: "·" }
+        },
+        {
+            title: "ReLU",
+            note: "ReLU снова гасит середину: −0.06 становится нулём. h = (0.356, 0, 0.278). Пунктир — связи выключенного нейрона.",
+            hot: ["h1", "h3"],
+            dead: ["h2"],
+            win: [],
+            edges: null,
+            values: { t: "0.5", hum: "0.8", h1: "0.356", h2: "0", h3: "0.278", rain: "·", sun: "·" }
+        },
+        {
+            title: "Выходной слой",
+            note: "Живые нейроны умножаются на новый W₂, затем прибавляется b₂. Выключенный даёт ноль. z₂ ≈ (0.313, −0.103).",
+            hot: ["rain", "sun"],
+            dead: ["h2"],
+            win: [],
+            edges: ".nn-e2 line:not(.from-h2)",
+            values: { t: "0.5", hum: "0.8", h1: "0.356", h2: "0", h3: "0.278", rain: "0.313", sun: "−0.103" }
+        },
+        {
+            title: "Softmax",
+            note: "Softmax ставит дождю около 60%, солнцу — 40%. В тетради по-прежнему дождь. Штраф упал с 0.58 до 0.51.",
+            hot: ["sun"],
+            dead: ["h2"],
+            win: ["rain"],
+            edges: null,
+            values: { t: "0.5", hum: "0.8", h1: "0.356", h2: "0", h3: "0.278", rain: "60%", sun: "40%" }
+        }
+    ];
+    var step = 0;
+    var prev = document.getElementById("bp-prev");
+    var next = document.getElementById("bp-next");
+    var count = document.getElementById("bp-count");
+    var note = document.getElementById("bp-note");
 
     function show(i) {
         step = i;
